@@ -1,0 +1,119 @@
+{
+  "app": { "title": "GitLab Overseer" },
+  "common": { "actions": "Műveletek" },
+  "shell": {
+    "toggleLanguage": "Nyelv váltása",
+    "toggleTheme": "Világos/sötét téma váltása",
+    "logout": "Kijelentkezés",
+    "configError": "Az alkalmazás konfigurációja hibás.",
+    "configErrorHint": "Ellenőrizd a telepítés config/app-config.json fájlját (lásd README, \"Configuration\").",
+    "menu": {
+      "dashboard": "Áttekintés",
+      "sources": "Adatforrások",
+      "connection": "Kapcsolat",
+      "login": "Bejelentkezés"
+    }
+  },
+  "login": {
+    "title": "Bejelentkezés",
+    "subtitle": "GitLab példány: {{url}}",
+    "oauthHint": "A GitLab oldalán hagyod jóvá a csak olvasási hozzáférést (read_api scope). Jelszót ebben az alkalmazásban nem kell megadnod.",
+    "oauth": "Bejelentkezés GitLabbal",
+    "oauthMissing": "Ebben a telepítésben nincs beállítva OAuth bejelentkezés (az oauth.clientId üres).",
+    "tokenHint": "Használhatsz read_api scope-pal rendelkező személyes hozzáférési tokent is. Csak ebben a böngészőlapon marad meg, és csak a GitLab példánynak küldjük el.",
+    "token": "Személyes hozzáférési token",
+    "tokenSubmit": "Bejelentkezés tokennel"
+  },
+  "auth": {
+    "errors": {
+      "denied": "A GitLab nem adott hozzáférést.",
+      "stateMismatch": "A bejelentkezési válasz nem egy itt indított bejelentkezéshez tartozik. Próbáld újra.",
+      "expired": "A bejelentkezés túl sokáig tartott. Próbáld újra.",
+      "tokenExchange": "A GitLab elutasította a bejelentkezést.",
+      "invalidToken": "A token érvénytelen, lejárt, vagy nincs read_api scope-ja.",
+      "network": "A GitLab nem érhető el (hálózati vagy CORS hiba).",
+      "sessionExpired": "A munkamenet véget ért. Jelentkezz be újra.",
+      "oauthNotConfigured": "Az OAuth bejelentkezés nincs beállítva."
+    }
+  },
+  "errors": {
+    "network": "A GitLab nem érhető el (hálózati vagy CORS hiba).",
+    "api": "A GitLab hibával válaszolt (HTTP {{status}})."
+  },
+  "dashboard": {
+    "title": "Áttekintés",
+    "welcome": "Üdv, {{name}}",
+    "projects": "Projektek",
+    "groups": "Csoportok",
+    "noSourcesTitle": "Még nincs adatforrás",
+    "noSourcesText": "Válaszd ki azokat a GitLab projekteket és csoportokat, amelyek adataiból a metrikák készülnek.",
+    "goSources": "Adatforrások kiválasztása",
+    "metricsTitle": "A metrikák hamarosan érkeznek",
+    "metricsText": "A kapcsolat és az adatforrások készen állnak. A metrikák itt fognak megjelenni."
+  },
+  "sources": {
+    "title": "Adatforrások",
+    "subtitle": "Projektek és csoportok (alcsoportokkal együtt), amelyek GitLab adatait elemezzük. A böngészőben tároljuk; a fájl letöltésével megőrizheted vagy megoszthatod.",
+    "selected": "Kiválasztott források",
+    "check": "Hozzáférés ellenőrzése (utolsó {{days}} nap)",
+    "checkFailed": "Hiba (HTTP {{status}})",
+    "downloadJson": "Fájl letöltése",
+    "openJson": "Fájl megnyitása",
+    "downloadCsv": "CSV export",
+    "clear": "Összes eltávolítása",
+    "emptyTitle": "Nincs kiválasztva semmi",
+    "emptyText": "Keress projekteket vagy csoportokat lent, adj hozzá egyet az útvonala alapján, vagy nyiss meg egy mentett fájlt.",
+    "kind": "Típus",
+    "kinds": { "project": "Projekt", "group": "Csoport" },
+    "name": "Név",
+    "path": "Teljes útvonal",
+    "pathInvalid": "Teljes útvonalat adj meg, pl. csoport/alcsoport/projekt.",
+    "mergeRequests": "MR-ek (utolsó {{days}} nap)",
+    "remove": "{{name}} eltávolítása",
+    "search": "Keresés",
+    "searchTerm": "Név vagy útvonal",
+    "membershipOnly": "Csak ahol tag vagyok",
+    "searchSubmit": "Keresés",
+    "noResults": "Nincs találat.",
+    "add": "Hozzáadás",
+    "added": "Hozzáadva",
+    "byPath": "Hozzáadás útvonal alapján",
+    "notFound": "\"{{path}}\" nem található, vagy nincs hozzáférésed.",
+    "limit": "Túl sok adatforrás (legfeljebb 200).",
+    "imported": "{{count}} adatforrás betöltve a fájlból.",
+    "defaultsAdded": "{{count}} alapértelmezett adatforrás hozzáadva a konfigurációból.",
+    "defaultsMissing": "Néhány alapértelmezett adatforrás nem található: {{paths}}",
+    "importErrors": {
+      "notJson": "A fájl nem érvényes JSON.",
+      "wrongFormat": "A fájl nem GitLab Overseer adatforrás-fájl.",
+      "otherInstance": "A fájl egy másik GitLab példányhoz tartozik (ez az alkalmazás ezt használja: {{url}}).",
+      "invalidEntry": "A fájl érvénytelen bejegyzést tartalmaz.",
+      "tooLarge": "A fájl túl nagy.",
+      "unreadable": "A fájl nem olvasható."
+    }
+  },
+  "connection": {
+    "title": "Kapcsolat",
+    "subtitle": "GitLab példány, munkamenet és export beállítások",
+    "status": "Állapot",
+    "test": "Kapcsolat tesztelése",
+    "ok": "Kapcsolódva: a token érvényes, az API elérhető.",
+    "instance": "GitLab példány",
+    "version": "GitLab verzió",
+    "user": "Bejelentkezve mint",
+    "method": "Bejelentkezés módja",
+    "methods": { "oauth": "OAuth (PKCE)", "token": "Személyes hozzáférési token" },
+    "expiresAt": "Token megújítása legkésőbb",
+    "scopes": "OAuth scope-ok",
+    "redirectUri": "OAuth visszahívási URL",
+    "export": "CSV export",
+    "exportHint": "Tizedesvesszős Excelhez (pl. magyar területi beállítás) pontosvesszőt használj.",
+    "delimiter": "Elválasztó",
+    "delimiters": { "comma": "Vessző (,)", "semicolon": "Pontosvessző (;)", "tab": "Tabulátor" }
+  },
+  "notFound": {
+    "title": "Az oldal nem található",
+    "text": "Ez az oldal nem létezik.",
+    "home": "Vissza az áttekintéshez"
+  }
+}

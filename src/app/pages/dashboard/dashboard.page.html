@@ -1,0 +1,40 @@
+<ix-content-header
+  [headerTitle]="'dashboard.title' | translate"
+  [headerSubtitle]="'dashboard.welcome' | translate: { name: auth.user()?.name ?? '' }"
+></ix-content-header>
+
+<div class="kpis">
+  <ix-kpi
+    data-testid="kpi-projects"
+    [label]="'dashboard.projects' | translate"
+    [value]="sources.projects().length"
+  ></ix-kpi>
+  <ix-kpi
+    data-testid="kpi-groups"
+    [label]="'dashboard.groups' | translate"
+    [value]="sources.groups().length"
+  ></ix-kpi>
+</div>
+
+<ix-card class="block">
+  <ix-card-content>
+    @if (sources.sources().length === 0) {
+      <ix-empty-state
+        data-testid="dashboard-no-sources"
+        icon="project"
+        [header]="'dashboard.noSourcesTitle' | translate"
+        [subHeader]="'dashboard.noSourcesText' | translate"
+      ></ix-empty-state>
+      <ix-button data-testid="dashboard-go-sources" routerLink="/sources">{{
+        'dashboard.goSources' | translate
+      }}</ix-button>
+    } @else {
+      <ix-empty-state
+        data-testid="dashboard-metrics-pending"
+        icon="barchart"
+        [header]="'dashboard.metricsTitle' | translate"
+        [subHeader]="'dashboard.metricsText' | translate"
+      ></ix-empty-state>
+    }
+  </ix-card-content>
+</ix-card>

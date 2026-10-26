@@ -1,0 +1,17 @@
+.language-code {
+  margin-inline: 0.25rem 0.5rem;
+  font-weight: 700;
+}
+
+.config-error {
+  max-width: 48rem;
+  margin: 3rem auto;
+  padding: 0 1rem;
+  font-family: var(--theme-font-family, sans-serif);
+  color: var(--theme-color-std-text);
+
+  &__detail {
+    display: block;
+    margin-top: 0.25rem;
+  }
+}

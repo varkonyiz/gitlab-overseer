@@ -1,0 +1,86 @@
+@if (configService.error(); as configError) {
+  <main class="config-error" data-testid="config-error">
+    <h1>{{ 'app.title' | translate }}</h1>
+    <ix-message-bar type="danger" [persistent]="true">
+      <strong>{{ 'shell.configError' | translate }}</strong>
+      <span class="config-error__detail">{{ configError }}</span>
+    </ix-message-bar>
+    <p>{{ 'shell.configErrorHint' | translate }}</p>
+  </main>
+} @else {
+  <ix-application>
+    <ix-application-header [name]="'app.title' | translate">
+      <ix-icon-button
+        data-testid="toggle-language"
+        variant="subtle-tertiary"
+        icon="globe"
+        [attr.aria-label]="'shell.toggleLanguage' | translate"
+        (click)="preferences.toggleLanguage()"
+      ></ix-icon-button>
+      <span class="language-code" data-testid="current-language">{{
+        preferences.language().toUpperCase()
+      }}</span>
+      <ix-icon-button
+        data-testid="toggle-theme"
+        variant="subtle-tertiary"
+        [icon]="preferences.colorScheme() === 'light' ? 'moon' : 'sun'"
+        [attr.aria-label]="'shell.toggleTheme' | translate"
+        (click)="preferences.toggleColorScheme()"
+      ></ix-icon-button>
+    </ix-application-header>
+
+    <ix-menu>
+      @if (auth.user(); as user) {
+        <ix-menu-avatar
+          data-testid="menu-avatar"
+          [top]="user.name"
+          [bottom]="'@' + user.username"
+          [image]="user.avatar_url ?? undefined"
+          [hideLogoutButton]="true"
+        >
+          <ix-menu-avatar-item
+            data-testid="logout"
+            icon="log-out"
+            [label]="'shell.logout' | translate"
+            (itemClick)="logout()"
+          ></ix-menu-avatar-item>
+        </ix-menu-avatar>
+        <ix-menu-item
+          data-testid="menu-dashboard"
+          icon="barchart"
+          routerLink="/dashboard"
+          routerLinkActive
+          #dashboard="routerLinkActive"
+          [active]="dashboard.isActive"
+          >{{ 'shell.menu.dashboard' | translate }}</ix-menu-item
+        >
+        <ix-menu-item
+          data-testid="menu-sources"
+          icon="project"
+          routerLink="/sources"
+          routerLinkActive
+          #sources="routerLinkActive"
+          [active]="sources.isActive"
+          >{{ 'shell.menu.sources' | translate }}</ix-menu-item
+        >
+        <ix-menu-item
+          data-testid="menu-connection"
+          icon="connections"
+          routerLink="/connection"
+          routerLinkActive
+          #connection="routerLinkActive"
+          [active]="connection.isActive"
+          >{{ 'shell.menu.connection' | translate }}</ix-menu-item
+        >
+      } @else {
+        <ix-menu-item data-testid="menu-login" icon="log-in" routerLink="/login">{{
+          'shell.menu.login' | translate
+        }}</ix-menu-item>
+      }
+    </ix-menu>
+
+    <ix-content>
+      <router-outlet />
+    </ix-content>
+  </ix-application>
+}

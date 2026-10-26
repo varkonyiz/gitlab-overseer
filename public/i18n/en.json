@@ -1,0 +1,119 @@
+{
+  "app": { "title": "GitLab Overseer" },
+  "common": { "actions": "Actions" },
+  "shell": {
+    "toggleLanguage": "Switch language",
+    "toggleTheme": "Switch light/dark theme",
+    "logout": "Sign out",
+    "configError": "The application configuration is invalid.",
+    "configErrorHint": "Check config/app-config.json in the deployment (see README, \"Configuration\").",
+    "menu": {
+      "dashboard": "Dashboard",
+      "sources": "Data sources",
+      "connection": "Connection",
+      "login": "Sign in"
+    }
+  },
+  "login": {
+    "title": "Sign in",
+    "subtitle": "GitLab instance: {{url}}",
+    "oauthHint": "You are redirected to GitLab to approve read-only access (scope read_api). No password is entered in this app.",
+    "oauth": "Sign in with GitLab",
+    "oauthMissing": "OAuth sign-in is not configured for this deployment (oauth.clientId is empty).",
+    "tokenHint": "Alternatively use a personal access token with the read_api scope. It is kept in this browser tab only and sent to the GitLab instance only.",
+    "token": "Personal access token",
+    "tokenSubmit": "Sign in with token"
+  },
+  "auth": {
+    "errors": {
+      "denied": "GitLab did not grant access.",
+      "stateMismatch": "The sign-in response did not match a sign-in started here. Please try again.",
+      "expired": "The sign-in took too long. Please try again.",
+      "tokenExchange": "GitLab refused the sign-in.",
+      "invalidToken": "The token is invalid, expired or lacks the read_api scope.",
+      "network": "GitLab could not be reached (network or CORS error).",
+      "sessionExpired": "Your session has ended. Please sign in again.",
+      "oauthNotConfigured": "OAuth sign-in is not configured."
+    }
+  },
+  "errors": {
+    "network": "GitLab could not be reached (network or CORS error).",
+    "api": "GitLab answered with an error (HTTP {{status}})."
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "welcome": "Welcome, {{name}}",
+    "projects": "Projects",
+    "groups": "Groups",
+    "noSourcesTitle": "No data sources yet",
+    "noSourcesText": "Choose the GitLab projects and groups whose data the metrics should use.",
+    "goSources": "Choose data sources",
+    "metricsTitle": "Metrics are coming",
+    "metricsText": "The connection and the data sources are ready. Metric widgets will appear here."
+  },
+  "sources": {
+    "title": "Data sources",
+    "subtitle": "Projects and groups (incl. subgroups) whose GitLab data is analysed. Saved in this browser; download the file to keep or share it.",
+    "selected": "Selected sources",
+    "check": "Check access (last {{days}} days)",
+    "checkFailed": "Error (HTTP {{status}})",
+    "downloadJson": "Download file",
+    "openJson": "Open file",
+    "downloadCsv": "Export CSV",
+    "clear": "Remove all",
+    "emptyTitle": "Nothing selected",
+    "emptyText": "Search for projects or groups below, add one by its path or open a saved file.",
+    "kind": "Type",
+    "kinds": { "project": "Project", "group": "Group" },
+    "name": "Name",
+    "path": "Full path",
+    "pathInvalid": "Use the full path, e.g. group/subgroup/project.",
+    "mergeRequests": "MRs (last {{days}} days)",
+    "remove": "Remove {{name}}",
+    "search": "Search",
+    "searchTerm": "Name or path",
+    "membershipOnly": "Only where I am a member",
+    "searchSubmit": "Search",
+    "noResults": "No matches.",
+    "add": "Add",
+    "added": "Added",
+    "byPath": "Add by path",
+    "notFound": "\"{{path}}\" was not found or you have no access.",
+    "limit": "Too many data sources (maximum 200).",
+    "imported": "{{count}} data source(s) loaded from the file.",
+    "defaultsAdded": "{{count}} default data source(s) from the configuration were added.",
+    "defaultsMissing": "Some default data sources could not be found: {{paths}}",
+    "importErrors": {
+      "notJson": "The file is not valid JSON.",
+      "wrongFormat": "The file is not a GitLab Overseer data sources file.",
+      "otherInstance": "The file belongs to another GitLab instance (this app uses {{url}}).",
+      "invalidEntry": "The file contains an invalid entry.",
+      "tooLarge": "The file is too large.",
+      "unreadable": "The file could not be read."
+    }
+  },
+  "connection": {
+    "title": "Connection",
+    "subtitle": "GitLab instance, session and export settings",
+    "status": "Status",
+    "test": "Test connection",
+    "ok": "Connected: the token is valid and the API is reachable.",
+    "instance": "GitLab instance",
+    "version": "GitLab version",
+    "user": "Signed in as",
+    "method": "Sign-in method",
+    "methods": { "oauth": "OAuth (PKCE)", "token": "Personal access token" },
+    "expiresAt": "Token renews before",
+    "scopes": "OAuth scopes",
+    "redirectUri": "OAuth callback URL",
+    "export": "CSV export",
+    "exportHint": "Use a semicolon for Excel with a decimal comma (e.g. Hungarian locale).",
+    "delimiter": "Delimiter",
+    "delimiters": { "comma": "Comma (,)", "semicolon": "Semicolon (;)", "tab": "Tab" }
+  },
+  "notFound": {
+    "title": "Page not found",
+    "text": "This page does not exist.",
+    "home": "Go to the dashboard"
+  }
+}

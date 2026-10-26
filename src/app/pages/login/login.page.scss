@@ -1,0 +1,25 @@
+@use '../../shared/page';
+
+.login-card {
+  display: block;
+  max-width: 36rem;
+}
+
+.login-stack,
+.token-form {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 1rem;
+}
+
+.token-form,
+.token-form ix-input,
+ix-divider {
+  width: 100%;
+}
+
+.detail {
+  display: block;
+  margin-top: 0.25rem;
+}

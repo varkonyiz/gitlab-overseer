@@ -1,0 +1,46 @@
+// Shared layout for pages.
+ix-content-header {
+  margin-block-end: 1rem;
+}
+
+.block {
+  display: block;
+  width: 100%;
+  max-width: 72rem;
+  margin-block-end: 1rem;
+}
+
+.stack {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.muted {
+  color: var(--theme-color-soft-text);
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+
+  th,
+  td {
+    padding: 0.5rem;
+    text-align: start;
+    border-block-end: 1px solid var(--theme-color-soft-bdr);
+    vertical-align: middle;
+  }
+
+  td.num,
+  th.num {
+    text-align: end;
+  }
+}
