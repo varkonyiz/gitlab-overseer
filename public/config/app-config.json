@@ -1,0 +1,11 @@
+{
+  "gitlabUrl": "https://gitlab.com",
+  "oauth": {
+    "clientId": "",
+    "scopes": ["read_api"],
+    "redirectUri": null
+  },
+  "allowPersonalAccessToken": true,
+  "defaultLanguage": "en",
+  "defaultSources": []
+}

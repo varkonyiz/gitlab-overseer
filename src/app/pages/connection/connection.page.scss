@@ -1,0 +1,21 @@
+@use '../../shared/page';
+
+.heading {
+  margin-block-end: 0.75rem;
+}
+
+.details {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: 0.5rem 1.5rem;
+  margin: 1rem 0 0;
+
+  dt {
+    color: var(--theme-color-soft-text);
+  }
+
+  dd {
+    margin: 0;
+    overflow-wrap: anywhere;
+  }
+}

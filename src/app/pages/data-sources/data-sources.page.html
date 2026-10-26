@@ -1,0 +1,258 @@
+<ix-content-header
+  [headerTitle]="'sources.title' | translate"
+  [headerSubtitle]="'sources.subtitle' | translate"
+></ix-content-header>
+
+@if (notice(); as n) {
+  <ix-message-bar
+    class="block"
+    data-testid="sources-notice"
+    [type]="n.type"
+    (closedChange)="notice.set(null)"
+  >
+    {{ n.key | translate: n.params }}
+  </ix-message-bar>
+}
+
+<ix-card class="block">
+  <ix-card-content>
+    <ix-typography format="h4">{{ 'sources.selected' | translate }}</ix-typography>
+    <div class="row toolbar">
+      <ix-button
+        data-testid="sources-check"
+        icon="refresh"
+        [disabled]="sources.sources().length === 0"
+        [loading]="checkingAll()"
+        (click)="checkAccess()"
+        >{{ 'sources.check' | translate: { days: checkDays } }}</ix-button
+      >
+      <ix-button
+        data-testid="sources-download-json"
+        variant="secondary"
+        icon="download"
+        [disabled]="sources.sources().length === 0"
+        (click)="downloadJson()"
+        >{{ 'sources.downloadJson' | translate }}</ix-button
+      >
+      <ix-button
+        data-testid="sources-open-json"
+        variant="secondary"
+        icon="upload"
+        (click)="fileInput.click()"
+        >{{ 'sources.openJson' | translate }}</ix-button
+      >
+      <input
+        #fileInput
+        data-testid="sources-file-input"
+        class="hidden-input"
+        type="file"
+        accept="application/json,.json"
+        (change)="openFile($event)"
+      />
+      <ix-button
+        data-testid="sources-download-csv"
+        variant="secondary"
+        icon="export"
+        [disabled]="sources.sources().length === 0"
+        (click)="downloadCsv()"
+        >{{ 'sources.downloadCsv' | translate }}</ix-button
+      >
+      <ix-button
+        data-testid="sources-clear"
+        variant="danger-tertiary"
+        icon="trashcan"
+        [disabled]="sources.sources().length === 0"
+        (click)="clear()"
+        >{{ 'sources.clear' | translate }}</ix-button
+      >
+    </div>
+
+    @if (sources.sources().length === 0) {
+      <ix-empty-state
+        data-testid="sources-empty"
+        icon="project"
+        [header]="'sources.emptyTitle' | translate"
+        [subHeader]="'sources.emptyText' | translate"
+      ></ix-empty-state>
+    } @else {
+      <div class="table-wrap">
+        <table class="table" data-testid="sources-table">
+          <thead>
+            <tr>
+              <th>{{ 'sources.kind' | translate }}</th>
+              <th>{{ 'sources.name' | translate }}</th>
+              <th>{{ 'sources.path' | translate }}</th>
+              <th class="num">{{ 'sources.mergeRequests' | translate: { days: checkDays } }}</th>
+              <th>
+                <span class="visually-hidden">{{ 'common.actions' | translate }}</span>
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (source of sources.sources(); track sourceKey(source)) {
+              <tr [attr.data-testid]="'source-row-' + source.fullPath">
+                <td>
+                  <ix-pill [outline]="source.kind === 'group'">{{
+                    'sources.kinds.' + source.kind | translate
+                  }}</ix-pill>
+                </td>
+                <td>
+                  <a [href]="source.webUrl" target="_blank" rel="noopener noreferrer">{{
+                    source.name
+                  }}</a>
+                </td>
+                <td class="muted">{{ source.fullPath }}</td>
+                <td class="num" data-testid="source-check">
+                  @switch (checks().get(sourceKey(source))?.status) {
+                    @case ('loading') {
+                      …
+                    }
+                    @case ('ok') {
+                      @let count = $any(checks().get(sourceKey(source))).count;
+                      {{ count === null ? '10000+' : count }}
+                    }
+                    @case ('error') {
+                      <span class="error-text">{{
+                        'sources.checkFailed'
+                          | translate
+                            : { status: $any(checks().get(sourceKey(source))).httpStatus ?? '?' }
+                      }}</span>
+                    }
+                    @default {
+                      <span class="muted">–</span>
+                    }
+                  }
+                </td>
+                <td class="num">
+                  <ix-icon-button
+                    data-testid="source-remove"
+                    variant="subtle-tertiary"
+                    icon="trashcan"
+                    [attr.aria-label]="'sources.remove' | translate: { name: source.name }"
+                    (click)="remove(source)"
+                  ></ix-icon-button>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+  </ix-card-content>
+</ix-card>
+
+<div class="grid">
+  <ix-card>
+    <ix-card-content>
+      <ix-typography format="h4">{{ 'sources.search' | translate }}</ix-typography>
+      <form class="stack" [formGroup]="searchForm" (ngSubmit)="search()" novalidate>
+        <div class="row">
+          <ix-select
+            data-testid="search-kind"
+            formControlName="kind"
+            [label]="'sources.kind' | translate"
+            [hideListHeader]="true"
+          >
+            <ix-select-item
+              value="project"
+              [label]="'sources.kinds.project' | translate"
+            ></ix-select-item>
+            <ix-select-item
+              value="group"
+              [label]="'sources.kinds.group' | translate"
+            ></ix-select-item>
+          </ix-select>
+          <ix-input
+            data-testid="search-term"
+            formControlName="term"
+            name="term"
+            [label]="'sources.searchTerm' | translate"
+          ></ix-input>
+        </div>
+        <ix-checkbox
+          data-testid="search-membership"
+          formControlName="membershipOnly"
+          [label]="'sources.membershipOnly' | translate"
+        ></ix-checkbox>
+        <div>
+          <ix-button
+            data-testid="search-submit"
+            type="submit"
+            icon="search"
+            [loading]="searching()"
+            >{{ 'sources.searchSubmit' | translate }}</ix-button
+          >
+        </div>
+      </form>
+
+      @if (results(); as list) {
+        @if (list.length === 0) {
+          <p class="muted" data-testid="search-no-results">{{ 'sources.noResults' | translate }}</p>
+        } @else {
+          <table class="table" data-testid="search-results">
+            <tbody>
+              @for (result of list; track sourceKey(result)) {
+                <tr>
+                  <td>
+                    {{ result.name }}
+                    <div class="muted">{{ result.fullPath }}</div>
+                  </td>
+                  <td class="num">
+                    <ix-button
+                      data-testid="search-add"
+                      variant="secondary"
+                      [disabled]="sources.has(result)"
+                      (click)="add(result)"
+                      >{{
+                        (sources.has(result) ? 'sources.added' : 'sources.add') | translate
+                      }}</ix-button
+                    >
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        }
+      }
+    </ix-card-content>
+  </ix-card>
+
+  <ix-card>
+    <ix-card-content>
+      <ix-typography format="h4">{{ 'sources.byPath' | translate }}</ix-typography>
+      <form class="stack" [formGroup]="pathForm" (ngSubmit)="addByPath()" novalidate>
+        <div class="row">
+          <ix-select
+            data-testid="path-kind"
+            formControlName="kind"
+            [label]="'sources.kind' | translate"
+            [hideListHeader]="true"
+          >
+            <ix-select-item
+              value="project"
+              [label]="'sources.kinds.project' | translate"
+            ></ix-select-item>
+            <ix-select-item
+              value="group"
+              [label]="'sources.kinds.group' | translate"
+            ></ix-select-item>
+          </ix-select>
+          <ix-input
+            data-testid="path-input"
+            formControlName="path"
+            name="path"
+            placeholder="group/subgroup/project"
+            [label]="'sources.path' | translate"
+            [required]="true"
+            [invalidText]="'sources.pathInvalid' | translate"
+          ></ix-input>
+        </div>
+        <div>
+          <ix-button data-testid="path-submit" type="submit" [loading]="resolving()">{{
+            'sources.add' | translate
+          }}</ix-button>
+        </div>
+      </form>
+    </ix-card-content>
+  </ix-card>
+</div>

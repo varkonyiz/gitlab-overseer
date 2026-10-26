@@ -1,0 +1,80 @@
+<ix-content-header
+  [headerTitle]="'connection.title' | translate"
+  [headerSubtitle]="'connection.subtitle' | translate"
+></ix-content-header>
+
+<ix-card class="block">
+  <ix-card-content>
+    <div class="row heading">
+      <ix-typography format="h4">{{ 'connection.status' | translate }}</ix-typography>
+      <ix-button
+        data-testid="connection-test"
+        variant="secondary"
+        icon="refresh"
+        [loading]="test().status === 'running'"
+        (click)="runTest()"
+        >{{ 'connection.test' | translate }}</ix-button
+      >
+    </div>
+    @switch (test().status) {
+      @case ('ok') {
+        <ix-message-bar type="success" [persistent]="true" data-testid="connection-ok">
+          {{ 'connection.ok' | translate }}
+        </ix-message-bar>
+      }
+      @case ('failed') {
+        <ix-message-bar type="danger" [persistent]="true" data-testid="connection-failed">
+          {{
+            ($any(test()).httpStatus === 0 ? 'errors.network' : 'errors.api')
+              | translate: { status: $any(test()).httpStatus ?? '?' }
+          }}
+        </ix-message-bar>
+      }
+    }
+
+    <dl class="details">
+      <dt>{{ 'connection.instance' | translate }}</dt>
+      <dd>{{ config.gitlabUrl }}</dd>
+      @if (test().status === 'ok' && $any(test()).version; as version) {
+        <dt>{{ 'connection.version' | translate }}</dt>
+        <dd data-testid="connection-version">{{ version.version }}</dd>
+      }
+      @if (auth.user(); as user) {
+        <dt>{{ 'connection.user' | translate }}</dt>
+        <dd data-testid="connection-user">{{ user.name }} (&#64;{{ user.username }})</dd>
+      }
+      @if (auth.session(); as session) {
+        <dt>{{ 'connection.method' | translate }}</dt>
+        <dd data-testid="connection-method">
+          {{ 'connection.methods.' + session.method | translate }}
+        </dd>
+        @if (session.expiresAt !== null) {
+          <dt>{{ 'connection.expiresAt' | translate }}</dt>
+          <dd>{{ session.expiresAt | date: 'medium' }}</dd>
+        }
+      }
+      <dt>{{ 'connection.scopes' | translate }}</dt>
+      <dd>{{ config.oauth.scopes.join(' ') }}</dd>
+      <dt>{{ 'connection.redirectUri' | translate }}</dt>
+      <dd data-testid="connection-redirect-uri">{{ redirectUri }}</dd>
+    </dl>
+  </ix-card-content>
+</ix-card>
+
+<ix-card class="block">
+  <ix-card-content>
+    <ix-typography format="h4">{{ 'connection.export' | translate }}</ix-typography>
+    <p class="muted">{{ 'connection.exportHint' | translate }}</p>
+    <ix-select
+      data-testid="csv-delimiter"
+      [label]="'connection.delimiter' | translate"
+      [value]="preferences.csvDelimiter()"
+      [hideListHeader]="true"
+      (valueChange)="setDelimiter($event.detail)"
+    >
+      @for (d of delimiters; track d.value) {
+        <ix-select-item [value]="d.value" [label]="d.key | translate"></ix-select-item>
+      }
+    </ix-select>
+  </ix-card-content>
+</ix-card>

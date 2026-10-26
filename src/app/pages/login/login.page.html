@@ -1,0 +1,57 @@
+<ix-content-header
+  [headerTitle]="'login.title' | translate"
+  [headerSubtitle]="'login.subtitle' | translate: { url: config.gitlabUrl }"
+></ix-content-header>
+
+<ix-card class="login-card">
+  <ix-card-content>
+    <div class="login-stack">
+      @if (auth.error(); as error) {
+        <ix-message-bar type="danger" [persistent]="true" data-testid="login-error">
+          {{ 'auth.errors.' + error.code | translate }}
+          @if (error.detail) {
+            <span class="detail" data-testid="login-error-detail">{{ error.detail }}</span>
+          }
+        </ix-message-bar>
+      }
+
+      @if (auth.oauthEnabled) {
+        <p>{{ 'login.oauthHint' | translate }}</p>
+        <ix-button
+          data-testid="login-oauth"
+          icon="log-in"
+          [loading]="redirecting()"
+          (click)="signInWithGitLab()"
+          >{{ 'login.oauth' | translate }}</ix-button
+        >
+      } @else {
+        <ix-message-bar type="info" [persistent]="true" data-testid="oauth-not-configured">
+          {{ 'login.oauthMissing' | translate }}
+        </ix-message-bar>
+      }
+
+      @if (config.allowPersonalAccessToken) {
+        <ix-divider></ix-divider>
+        <form class="token-form" [formGroup]="tokenForm" (ngSubmit)="signInWithToken()" novalidate>
+          <p>{{ 'login.tokenHint' | translate }}</p>
+          <ix-input
+            data-testid="login-token"
+            formControlName="token"
+            name="token"
+            type="password"
+            autocomplete="off"
+            [label]="'login.token' | translate"
+            [required]="true"
+          ></ix-input>
+          <ix-button
+            data-testid="login-token-submit"
+            type="submit"
+            variant="secondary"
+            [loading]="checkingToken()"
+            >{{ 'login.tokenSubmit' | translate }}</ix-button
+          >
+        </form>
+      }
+    </div>
+  </ix-card-content>
+</ix-card>

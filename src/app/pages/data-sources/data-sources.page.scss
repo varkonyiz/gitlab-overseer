@@ -1,0 +1,42 @@
+@use '../../shared/page';
+
+.toolbar {
+  margin-block: 0.75rem 1rem;
+}
+
+.table-wrap {
+  overflow-x: auto;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(22rem, 1fr));
+  gap: 1rem;
+  max-width: 72rem;
+
+  ix-card {
+    width: 100%;
+  }
+}
+
+.hidden-input {
+  display: none;
+}
+
+.error-text {
+  color: var(--theme-color-alarm-text, var(--theme-color-alarm));
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+ix-input {
+  min-width: 16rem;
+  flex: 1;
+}

@@ -1,0 +1,9 @@
+@use '../../shared/page';
+
+.kpis {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr));
+  gap: 1rem;
+  max-width: 72rem;
+  margin-block-end: 1rem;
+}
