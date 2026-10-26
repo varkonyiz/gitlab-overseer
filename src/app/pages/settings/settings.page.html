@@ -1,0 +1,211 @@
+<ix-content-header
+  [headerTitle]="'settings.title' | translate"
+  [headerSubtitle]="'settings.subtitle' | translate"
+></ix-content-header>
+
+@if (notice(); as n) {
+  <ix-message-bar
+    class="block"
+    data-testid="settings-notice"
+    [type]="n.type"
+    (closedChange)="notice.set(null)"
+  >
+    {{ n.key | translate: n.params }}
+  </ix-message-bar>
+}
+
+<div class="row actions block">
+  <ix-pill data-testid="settings-origin" [outline]="!service.isCustomised()">{{
+    (service.isCustomised() ? 'settings.customised' : 'settings.defaults') | translate
+  }}</ix-pill>
+  <ix-button data-testid="settings-save" icon="check" (click)="save()">{{
+    'settings.save' | translate
+  }}</ix-button>
+  <ix-button data-testid="settings-reset" variant="secondary" icon="reset" (click)="reset()">{{
+    'settings.reset' | translate
+  }}</ix-button>
+  <ix-button
+    data-testid="settings-download"
+    variant="secondary"
+    icon="download"
+    (click)="download()"
+    >{{ 'settings.download' | translate }}</ix-button
+  >
+  <ix-button
+    data-testid="settings-open"
+    variant="secondary"
+    icon="upload"
+    (click)="fileInput.click()"
+    >{{ 'settings.open' | translate }}</ix-button
+  >
+  <input
+    #fileInput
+    class="hidden-input"
+    data-testid="settings-file-input"
+    type="file"
+    accept="application/json,.json"
+    (change)="open($event)"
+  />
+</div>
+
+<ix-card class="block">
+  <ix-card-content>
+    <ix-typography format="h4">{{ 'settings.branchTitle' | translate }}</ix-typography>
+    <p class="muted">{{ 'settings.branchHint' | translate: { pattern: defaultPattern } }}</p>
+    <div class="stack">
+      <ix-input
+        data-testid="settings-pattern"
+        class="mono"
+        [label]="'settings.pattern' | translate"
+        [value]="pattern()"
+        [maxLength]="500"
+        (valueChange)="pattern.set($event.detail)"
+      ></ix-input>
+      <div class="row">
+        <ix-input
+          data-testid="settings-sample"
+          [label]="'settings.sample' | translate"
+          [value]="sample()"
+          (valueChange)="sample.set($event.detail)"
+        ></ix-input>
+        <span data-testid="settings-sample-result" class="sample-result">
+          @if (sampleResult(); as r) {
+            @if (r.ok) {
+              {{ 'filter.sprint' | translate }}: <strong>{{ r.sprint ?? '–' }}</strong> ·
+              {{ 'filter.team' | translate }}: <strong>{{ r.team ?? '–' }}</strong>
+            } @else {
+              <span class="error-text">{{
+                'settings.errors.' + r.key | translate: { max: 500 }
+              }}</span>
+            }
+          }
+        </span>
+      </div>
+    </div>
+  </ix-card-content>
+</ix-card>
+
+<ix-card class="block">
+  <ix-card-content>
+    <ix-typography format="h4">{{ 'settings.sizeTitle' | translate }}</ix-typography>
+    <p class="muted">{{ 'settings.sizeHint' | translate }}</p>
+    <div class="row">
+      <ix-number-input
+        data-testid="settings-big-files"
+        [label]="'settings.bigFiles' | translate"
+        [value]="bigFiles()"
+        [min]="1"
+        (valueChange)="bigFiles.set($event.detail)"
+      ></ix-number-input>
+      <ix-number-input
+        data-testid="settings-big-weight"
+        [label]="'settings.bigWeight' | translate"
+        [value]="bigWeight()"
+        [min]="1"
+        (valueChange)="bigWeight.set($event.detail)"
+      ></ix-number-input>
+    </div>
+  </ix-card-content>
+</ix-card>
+
+<ix-card class="block">
+  <ix-card-content>
+    <ix-typography format="h4">{{ 'settings.sprintsTitle' | translate }}</ix-typography>
+    <p class="muted">{{ 'settings.sprintsHint' | translate }}</p>
+
+    @if (sprints().length > 0) {
+      <div class="table-wrap">
+        <table class="table" data-testid="sprint-table">
+          <thead>
+            <tr>
+              <th>{{ 'filter.sprint' | translate }}</th>
+              <th>{{ 'settings.start' | translate }}</th>
+              <th>{{ 'settings.end' | translate }}</th>
+              <th>
+                <span class="visually-hidden">{{ 'common.actions' | translate }}</span>
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (s of sprints(); track $index) {
+              <tr>
+                <td>
+                  <ix-input
+                    [attr.data-testid]="'sprint-name-' + $index"
+                    [value]="s.sprint"
+                    [attr.aria-label]="'filter.sprint' | translate"
+                    (valueChange)="setSprint($index, 'sprint', $event.detail)"
+                  ></ix-input>
+                </td>
+                <td>
+                  <ix-date-input
+                    format="yyyy-MM-dd"
+                    [value]="s.start"
+                    [attr.aria-label]="'settings.start' | translate"
+                    (valueChange)="setSprintDate($index, 'start', $event)"
+                  ></ix-date-input>
+                </td>
+                <td>
+                  <ix-date-input
+                    format="yyyy-MM-dd"
+                    [value]="s.end"
+                    [attr.aria-label]="'settings.end' | translate"
+                    (valueChange)="setSprintDate($index, 'end', $event)"
+                  ></ix-date-input>
+                </td>
+                <td class="num">
+                  <ix-icon-button
+                    variant="subtle-tertiary"
+                    icon="trashcan"
+                    [attr.aria-label]="'settings.removeSprint' | translate"
+                    (click)="removeSprint($index)"
+                  ></ix-icon-button>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+    <ix-button data-testid="sprint-add" variant="tertiary" icon="plus" (click)="addSprint()">{{
+      'settings.addSprint' | translate
+    }}</ix-button>
+
+    <ix-typography format="h5" class="generator-title">{{
+      'settings.generator' | translate
+    }}</ix-typography>
+    <div class="row">
+      <ix-number-input
+        data-testid="gen-first"
+        [label]="'settings.genFirst' | translate"
+        [value]="genFirst()"
+        [min]="0"
+        (valueChange)="genFirst.set($event.detail)"
+      ></ix-number-input>
+      <ix-date-input
+        data-testid="gen-start"
+        format="yyyy-MM-dd"
+        [label]="'settings.start' | translate"
+        [value]="genStart()"
+        (valueChange)="setGenStart($event)"
+      ></ix-date-input>
+      <ix-number-input
+        data-testid="gen-length"
+        [label]="'settings.genLength' | translate"
+        [value]="genLength()"
+        [min]="1"
+        (valueChange)="genLength.set($event.detail)"
+      ></ix-number-input>
+      <ix-number-input
+        data-testid="gen-count"
+        [label]="'settings.genCount' | translate"
+        [value]="genCount()"
+        [min]="1"
+        (valueChange)="genCount.set($event.detail)"
+      ></ix-number-input>
+      <ix-button data-testid="gen-submit" variant="secondary" (click)="generate()">{{
+        'settings.generate' | translate
+      }}</ix-button>
+    </div>
+  </ix-card-content>
+</ix-card>

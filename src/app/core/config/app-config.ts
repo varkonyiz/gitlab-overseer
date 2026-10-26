@@ -1,3 +1,10 @@
+import {
+  AnalyticsSettings,
+  DEFAULT_ANALYTICS_SETTINGS,
+  SettingsError,
+  parseAnalyticsSettings,
+} from '../analytics/analytics-settings';
+
 /**
  * Deployment configuration, read at startup from `config/app-config.json` next to `index.html`.
  * GitLab Pages has no backend, so this file is the only server-side setting; the Pages pipeline can
@@ -12,6 +19,17 @@ export interface AppConfig {
   readonly defaultLanguage: AppLanguage;
   /** Projects and groups a new user starts with (full paths), e.g. `{ "kind": "group", "path": "my-org" }`. */
   readonly defaultSources: readonly DefaultSource[];
+  /** Defaults of the sprint/team mapping and review weighting (users can override them). */
+  readonly analytics: AnalyticsSettings;
+  readonly features: FeatureFlags;
+}
+
+export interface FeatureFlags {
+  /**
+   * Reviewer auto-assignment writes to GitLab (`PUT …/merge_requests/:iid`), which needs the `api`
+   * scope. Off by default; only when it is on may `oauth.scopes` contain `api`.
+   */
+  readonly reviewerAssignment: boolean;
 }
 
 export interface OAuthConfig {
@@ -31,7 +49,7 @@ export type SourceKind = 'project' | 'group';
 export type AppLanguage = 'en' | 'hu';
 export const SUPPORTED_LANGUAGES: readonly AppLanguage[] = ['en', 'hu'];
 
-/** Scopes GitLab knows that are read-only; the app never needs write access. */
+/** Scopes GitLab knows that are read-only; without reviewer assignment the app never writes. */
 export const READ_ONLY_SCOPES: readonly string[] = [
   'read_api',
   'read_user',
@@ -42,6 +60,8 @@ export const READ_ONLY_SCOPES: readonly string[] = [
 ];
 
 export const DEFAULT_SCOPES: readonly string[] = ['read_api'];
+/** The only write scope, allowed together with `features.reviewerAssignment`. */
+export const WRITE_SCOPE = 'api';
 
 export class ConfigError extends Error {}
 
@@ -60,11 +80,14 @@ export function parseAppConfig(raw: unknown): AppConfig {
   if (clientId && !/^[A-Za-z0-9_-]{1,128}$/.test(clientId)) {
     throw new ConfigError('"oauth.clientId" is not a valid application ID.');
   }
+  const features = parseFeatures(raw['features']);
   const scopes = optionalStringArray(oauthRaw, 'scopes') ?? DEFAULT_SCOPES;
-  const writeScope = scopes.find((s) => !READ_ONLY_SCOPES.includes(s));
+  const writeScope = scopes.find(
+    (s) => !READ_ONLY_SCOPES.includes(s) && !(s === WRITE_SCOPE && features.reviewerAssignment),
+  );
   if (writeScope !== undefined) {
     throw new ConfigError(
-      `"oauth.scopes" may only contain read scopes; "${writeScope}" is not allowed.`,
+      `"oauth.scopes" may only contain read scopes (and "api" with features.reviewerAssignment); "${writeScope}" is not allowed.`,
     );
   }
   if (scopes.length === 0) {
@@ -92,7 +115,35 @@ export function parseAppConfig(raw: unknown): AppConfig {
     allowPersonalAccessToken: allowPat,
     defaultLanguage,
     defaultSources: parseDefaultSources(raw['defaultSources']),
+    analytics: parseAnalyticsConfig(raw['analytics']),
+    features,
   };
+}
+
+function parseFeatures(value: unknown): FeatureFlags {
+  if (value === undefined || value === null) {
+    return { reviewerAssignment: false };
+  }
+  if (!isRecord(value)) {
+    throw new ConfigError('"features" must be an object.');
+  }
+  const reviewerAssignment = value['reviewerAssignment'] ?? false;
+  if (typeof reviewerAssignment !== 'boolean') {
+    throw new ConfigError('"features.reviewerAssignment" must be true or false.');
+  }
+  return { reviewerAssignment };
+}
+
+function parseAnalyticsConfig(value: unknown): AnalyticsSettings {
+  try {
+    return parseAnalyticsSettings(value, DEFAULT_ANALYTICS_SETTINGS);
+  } catch (error) {
+    const detail =
+      error instanceof SettingsError
+        ? `${error.key}${Object.keys(error.params).length ? ` ${JSON.stringify(error.params)}` : ''}`
+        : 'invalid';
+    throw new ConfigError(`"analytics" is invalid (${detail}); see README, "Configuration".`);
+  }
 }
 
 /**

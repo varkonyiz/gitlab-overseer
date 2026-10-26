@@ -3,7 +3,8 @@
 # Deployment settings are CI/CD variables (Settings → CI/CD → Variables), written into
 # config/app-config.json by scripts/configure-deployment.mjs (see README, "Deploy to GitLab Pages"):
 #   GITLAB_URL (default: this instance, $CI_SERVER_URL), OAUTH_CLIENT_ID, OAUTH_SCOPES,
-#   OAUTH_REDIRECT_URI, ALLOW_PERSONAL_ACCESS_TOKEN, DEFAULT_LANGUAGE, DEFAULT_SOURCES.
+#   OAUTH_REDIRECT_URI, ALLOW_PERSONAL_ACCESS_TOKEN, DEFAULT_LANGUAGE, DEFAULT_SOURCES,
+#   BRANCH_PATTERN, SPRINTS, BIG_MR_FILES, BIG_MR_WEIGHT, REVIEWER_ASSIGNMENT.
 # None of them is secret: the OAuth application is non-confidential (PKCE, no client secret).
 
 stages:

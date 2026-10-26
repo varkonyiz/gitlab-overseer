@@ -15,19 +15,28 @@ import {
 import { addIcons } from '@siemens/ix-icons';
 import {
   iconBarchart,
+  iconCalendar,
+  iconCheck,
+  iconCogwheel,
   iconConnections,
   iconDownload,
   iconExport,
   iconGlobe,
+  iconList,
   iconLogIn,
   iconLogOut,
   iconMoon,
+  iconPlus,
   iconProject,
   iconRefresh,
+  iconReset,
   iconSearch,
+  iconStop,
   iconSun,
   iconTrashcan,
+  iconTrophy,
   iconUpload,
+  iconUserCheck,
 } from '@siemens/ix-icons/icons';
 
 import { AuthService } from '../core/auth/auth.service';
@@ -36,19 +45,28 @@ import { PreferencesService } from '../core/preferences.service';
 
 addIcons({
   iconBarchart,
+  iconCalendar,
+  iconCheck,
+  iconCogwheel,
   iconConnections,
   iconDownload,
   iconExport,
   iconGlobe,
+  iconList,
   iconLogIn,
   iconLogOut,
   iconMoon,
+  iconPlus,
   iconProject,
   iconRefresh,
+  iconReset,
   iconSearch,
+  iconStop,
   iconSun,
   iconTrashcan,
+  iconTrophy,
   iconUpload,
+  iconUserCheck,
 });
 
 @Component({

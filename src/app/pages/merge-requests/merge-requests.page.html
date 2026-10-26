@@ -1,0 +1,112 @@
+<ix-content-header
+  [headerTitle]="'mergeRequests.title' | translate"
+  [headerSubtitle]="'mergeRequests.subtitle' | translate"
+></ix-content-header>
+
+@if (!data.dataset()) {
+  <ix-empty-state
+    data-testid="no-data"
+    icon="list"
+    [header]="'common.noDataTitle' | translate"
+    [subHeader]="'common.noDataText' | translate"
+  ></ix-empty-state>
+  <ix-button routerLink="/dashboard">{{ 'common.goCollect' | translate }}</ix-button>
+} @else {
+  <app-analysis-filter></app-analysis-filter>
+  <ix-card class="block">
+    <ix-card-content>
+      <div class="row heading">
+        <span class="muted" data-testid="mr-count">{{
+          'mergeRequests.count' | translate: { count: data.filtered().length }
+        }}</span>
+        <ix-button data-testid="mr-csv" variant="secondary" icon="export" (click)="downloadCsv()">{{
+          'common.exportCsv' | translate
+        }}</ix-button>
+      </div>
+      <div class="table-wrap">
+        <table class="table" data-testid="mr-table">
+          <thead>
+            <tr>
+              <th>{{ 'mergeRequests.mergeRequest' | translate }}</th>
+              <th>{{ 'filter.sprint' | translate }}</th>
+              <th>{{ 'filter.team' | translate }}</th>
+              <th>{{ 'filter.state' | translate }}</th>
+              <th class="num">{{ 'mergeRequests.files' | translate }}</th>
+              <th>{{ 'mergeRequests.reviewers' | translate }}</th>
+              <th class="num">{{ 'phases.total' | translate }}</th>
+              <th class="num">{{ 'phases.draft' | translate }}</th>
+              <th class="num">{{ 'phases.reviewAssignment' | translate }}</th>
+              <th class="num">{{ 'phases.review' | translate }}</th>
+              <th class="num">{{ 'phases.merge' | translate }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (r of visible(); track key(r)) {
+              <tr [attr.data-testid]="'mr-row-' + key(r)">
+                <td class="title">
+                  <a [href]="r.mr.webUrl" target="_blank" rel="noopener noreferrer"
+                    >{{ r.mr.projectPath }}!{{ r.mr.iid }}</a
+                  >
+                  <div>{{ r.mr.title }}</div>
+                  <div class="muted small">
+                    {{ r.mr.author.name }} · {{ r.mr.createdAt | date: 'yyyy-MM-dd' }} ·
+                    {{ r.mr.sourceBranch }}
+                  </div>
+                </td>
+                <td>
+                  {{ r.classification.sprint ?? '–' }}
+                  @if (r.classification.sprintSource === 'calendar') {
+                    <span
+                      class="muted small"
+                      [attr.title]="'mergeRequests.fromCalendar' | translate"
+                      >({{ 'mergeRequests.calendarShort' | translate }})</span
+                    >
+                  }
+                </td>
+                <td>{{ r.classification.team ?? '–' }}</td>
+                <td>
+                  <ix-pill [outline]="r.mr.state !== 'merged'">{{
+                    'states.' + r.mr.state | translate
+                  }}</ix-pill>
+                  @if (r.mr.draft) {
+                    <ix-pill [outline]="true">{{ 'mergeRequests.draft' | translate }}</ix-pill>
+                  }
+                </td>
+                <td class="num">
+                  {{ r.mr.changesCount ?? '–' }}
+                  @if (r.big) {
+                    <span class="big" [attr.title]="'mergeRequests.bigHint' | translate"
+                      >×{{ r.weight }}</span
+                    >
+                  }
+                </td>
+                <td>{{ reviewerNames(r) || '–' }}</td>
+                <td class="num">
+                  {{ r.timeline.phases.total | duration: preferences.language() }}
+                </td>
+                <td class="num">
+                  {{ r.timeline.phases.draft | duration: preferences.language() }}
+                </td>
+                <td class="num">
+                  {{ r.timeline.phases.reviewAssignment | duration: preferences.language() }}
+                </td>
+                <td class="num">
+                  {{ r.timeline.phases.review | duration: preferences.language() }}
+                </td>
+                <td class="num">
+                  {{ r.timeline.phases.merge | duration: preferences.language() }}
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+      @if (visible().length < data.filtered().length) {
+        <ix-button data-testid="mr-more" variant="tertiary" (click)="showMore()">{{
+          'mergeRequests.showMore'
+            | translate: { shown: visible().length, total: data.filtered().length }
+        }}</ix-button>
+      }
+    </ix-card-content>
+  </ix-card>
+}

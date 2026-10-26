@@ -14,6 +14,8 @@ export interface CsvOptions {
   readonly delimiter?: CsvDelimiter;
   /** Prefix a UTF-8 byte order mark so Excel detects the encoding. Default true. */
   readonly bom?: boolean;
+  /** Write numbers with a decimal comma (`12,5`). Default: true with the `;` delimiter. */
+  readonly decimalComma?: boolean;
 }
 
 const FORMULA_START = /^[=+\-@\t\r]/;
@@ -24,16 +26,19 @@ export function toCsv<T>(
   options: CsvOptions = {},
 ): string {
   const delimiter = options.delimiter ?? ',';
+  const decimalComma = options.decimalComma ?? delimiter === ';';
   const lines = [
     columns.map((c) => escapeCell(c.header, delimiter)).join(delimiter),
     ...rows.map((row) =>
-      columns.map((c) => escapeCell(formatValue(c.value(row)), delimiter)).join(delimiter),
+      columns
+        .map((c) => escapeCell(formatValue(c.value(row), decimalComma), delimiter))
+        .join(delimiter),
     ),
   ];
   return `${options.bom === false ? '' : '\uFEFF'}${lines.join('\r\n')}\r\n`;
 }
 
-export function formatValue(value: CsvValue): string {
+export function formatValue(value: CsvValue, decimalComma = false): string {
   if (value === null || value === undefined) {
     return '';
   }
@@ -41,7 +46,10 @@ export function formatValue(value: CsvValue): string {
     return Number.isNaN(value.getTime()) ? '' : value.toISOString();
   }
   if (typeof value === 'number') {
-    return Number.isFinite(value) ? String(value) : '';
+    if (!Number.isFinite(value)) {
+      return '';
+    }
+    return decimalComma ? String(value).replace('.', ',') : String(value);
   }
   return String(value);
 }
@@ -63,5 +71,5 @@ export function escapeCell(text: string, delimiter: CsvDelimiter): string {
 }
 
 function isPlainNumber(text: string): boolean {
-  return /^[-+]?\d+(\.\d+)?(e[-+]?\d+)?$/i.test(text);
+  return /^[-+]?\d+([.,]\d+)?(e[-+]?\d+)?$/i.test(text);
 }

@@ -3,6 +3,7 @@ import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { provideTranslateService } from '@ngx-translate/core';
 
+import { DEFAULT_ANALYTICS_SETTINGS } from '../app/core/analytics/analytics-settings';
 import { AppConfig } from '../app/core/config/app-config';
 import { ConfigService } from '../app/core/config/config.service';
 import { BROWSER_LOCATION, BrowserLocation } from '../app/core/auth/browser-location';
@@ -19,6 +20,8 @@ export function testConfig(overrides: Partial<AppConfig> = {}): AppConfig {
     allowPersonalAccessToken: true,
     defaultLanguage: 'en',
     defaultSources: [],
+    analytics: DEFAULT_ANALYTICS_SETTINGS,
+    features: { reviewerAssignment: false },
     ...overrides,
   };
 }

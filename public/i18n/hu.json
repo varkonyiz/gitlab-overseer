@@ -1,6 +1,14 @@
 {
-  "app": { "title": "GitLab Overseer" },
-  "common": { "actions": "Műveletek" },
+  "app": {
+    "title": "GitLab Overseer"
+  },
+  "common": {
+    "actions": "Műveletek",
+    "exportCsv": "CSV export",
+    "noDataTitle": "Nincsenek betöltött merge requestek",
+    "noDataText": "Gyűjtsd össze a merge requesteket az áttekintő oldalon, vagy nyiss meg egy adatfájlt.",
+    "goCollect": "Ugrás az áttekintéshez"
+  },
   "shell": {
     "toggleLanguage": "Nyelv váltása",
     "toggleTheme": "Világos/sötét téma váltása",
@@ -11,7 +19,12 @@
       "dashboard": "Áttekintés",
       "sources": "Adatforrások",
       "connection": "Kapcsolat",
-      "login": "Bejelentkezés"
+      "login": "Bejelentkezés",
+      "mergeRequests": "Merge requestek",
+      "sprints": "Sprintek",
+      "reviewers": "Reviewerek",
+      "assign": "Reviewer kiosztás",
+      "settings": "Beállítások"
     }
   },
   "login": {
@@ -43,13 +56,13 @@
   "dashboard": {
     "title": "Áttekintés",
     "welcome": "Üdv, {{name}}",
-    "projects": "Projektek",
-    "groups": "Csoportok",
-    "noSourcesTitle": "Még nincs adatforrás",
-    "noSourcesText": "Válaszd ki azokat a GitLab projekteket és csoportokat, amelyek adataiból a metrikák készülnek.",
-    "goSources": "Adatforrások kiválasztása",
-    "metricsTitle": "A metrikák hamarosan érkeznek",
-    "metricsText": "A kapcsolat és az adatforrások készen állnak. A metrikák itt fognak megjelenni."
+    "noDataTitle": "Nincsenek betöltött merge requestek",
+    "noDataText": "Válassz időszakot, és gyűjtsd össze az adatforrások merge requestjeit, vagy nyiss meg egy adatfájlt.",
+    "mergeRequests": "Merge requestek",
+    "statistics": "Merge request idők",
+    "phaseChart": "Fázisidők mediánja sprintenként",
+    "countChart": "Merge requestek sprintenként és csapatonként",
+    "sprintDetails": "Sprint részletek"
   },
   "sources": {
     "title": "Adatforrások",
@@ -64,7 +77,10 @@
     "emptyTitle": "Nincs kiválasztva semmi",
     "emptyText": "Keress projekteket vagy csoportokat lent, adj hozzá egyet az útvonala alapján, vagy nyiss meg egy mentett fájlt.",
     "kind": "Típus",
-    "kinds": { "project": "Projekt", "group": "Csoport" },
+    "kinds": {
+      "project": "Projekt",
+      "group": "Csoport"
+    },
     "name": "Név",
     "path": "Teljes útvonal",
     "pathInvalid": "Teljes útvonalat adj meg, pl. csoport/alcsoport/projekt.",
@@ -102,18 +118,209 @@
     "version": "GitLab verzió",
     "user": "Bejelentkezve mint",
     "method": "Bejelentkezés módja",
-    "methods": { "oauth": "OAuth (PKCE)", "token": "Személyes hozzáférési token" },
+    "methods": {
+      "oauth": "OAuth (PKCE)",
+      "token": "Személyes hozzáférési token"
+    },
     "expiresAt": "Token megújítása legkésőbb",
     "scopes": "OAuth scope-ok",
     "redirectUri": "OAuth visszahívási URL",
     "export": "CSV export",
     "exportHint": "Tizedesvesszős Excelhez (pl. magyar területi beállítás) pontosvesszőt használj.",
     "delimiter": "Elválasztó",
-    "delimiters": { "comma": "Vessző (,)", "semicolon": "Pontosvessző (;)", "tab": "Tabulátor" }
+    "delimiters": {
+      "comma": "Vessző (,)",
+      "semicolon": "Pontosvessző (;)",
+      "tab": "Tabulátor"
+    }
   },
   "notFound": {
     "title": "Az oldal nem található",
     "text": "Ez az oldal nem létezik.",
     "home": "Vissza az áttekintéshez"
+  },
+  "phases": {
+    "total": "Teljes idő",
+    "draft": "Draft idő",
+    "reviewAssignment": "Reviewer kiosztási idő",
+    "review": "Review idő",
+    "merge": "Merge idő"
+  },
+  "phaseHints": {
+    "total": "Létrehozás → merge",
+    "draft": "Draftként létrehozva → késznek jelölve (csak draft merge requestek)",
+    "reviewAssignment": "Kész → első reviewer felkérése",
+    "review": "Első reviewer (ha már kész) → első jóváhagyás vagy változtatási kérés",
+    "merge": "Utolsó jóváhagyás → merge"
+  },
+  "stats": {
+    "phase": "Fázis",
+    "count": "Darab",
+    "median": "Medián",
+    "average": "Átlag",
+    "averageShort": "átlag {{value}}",
+    "p90": "90. percentilis",
+    "min": "Min",
+    "max": "Max"
+  },
+  "states": {
+    "opened": "Nyitott",
+    "merged": "Mergelve",
+    "closed": "Lezárva",
+    "locked": "Zárolva"
+  },
+  "charts": {
+    "other": "Egyéb"
+  },
+  "filter": {
+    "team": "Csapat",
+    "sprint": "Sprint",
+    "project": "Projekt",
+    "state": "Állapot",
+    "all": "Mind",
+    "none": "(nincs)",
+    "reset": "Szűrők törlése"
+  },
+  "collect": {
+    "title": "Merge request adatok",
+    "noSources": "Még nincs kiválasztott adatforrás.",
+    "goSources": "Adatforrások kiválasztása",
+    "from": "Létrehozva ettől",
+    "to": "Létrehozva eddig (üres = ma)",
+    "start": "Gyűjtés {{count}} forrásból",
+    "cancel": "Megszakítás",
+    "download": "Adatfájl letöltése",
+    "open": "Adatfájl megnyitása",
+    "invalidRange": "Adj meg érvényes időszakot (a vége legyen a kezdete után).",
+    "progress": {
+      "list": "Merge requestek listázása: {{done}}. forrás / {{total}}",
+      "details": "Idővonalak olvasása: {{done}} / {{total}}"
+    },
+    "done": "{{count}} merge request összegyűjtve.",
+    "partial": "{{count}} merge request összegyűjtve; {{failed}} idővonala nem olvasható.",
+    "truncated": "{{count}} merge request összegyűjtve; egy forrásnak több mint 5000 van ebben az időszakban, a régebbiek hiányoznak. Válassz rövidebb időszakot.",
+    "cancelled": "A gyűjtés megszakítva; az előző adatok megmaradtak.",
+    "opened": "{{count}} merge request betöltve a fájlból.",
+    "summary": "{{count}} merge request, létrehozva {{from}} – {{to}}, gyűjtve: {{at}}.",
+    "importErrors": {
+      "notJson": "A fájl nem érvényes JSON.",
+      "wrongFormat": "A fájl nem GitLab Overseer adatfájl.",
+      "otherInstance": "A fájl egy másik GitLab példányhoz tartozik (ez az alkalmazás ezt használja: {{url}}).",
+      "invalidEntry": "A fájl érvénytelen merge requestet tartalmaz.",
+      "tooLarge": "A fájl túl nagy.",
+      "unreadable": "A fájl nem olvasható."
+    }
+  },
+  "mergeRequests": {
+    "title": "Merge requestek",
+    "subtitle": "Minden összegyűjtött merge request a sprintjével, csapatával, méretével és fázisidőivel.",
+    "count": "{{count}} merge request",
+    "mergeRequest": "Merge request",
+    "files": "Fájlok",
+    "reviewers": "Reviewerek",
+    "draft": "Draft",
+    "bigHint": "Nagy merge request: ezzel a súllyal számít a reviewer rangsorban",
+    "fromCalendar": "Sprint a sprintnaptárból (nincs a branch nevében)",
+    "calendarShort": "naptár",
+    "showMore": "Több mutatása ({{shown}} / {{total}})"
+  },
+  "sprints": {
+    "title": "Sprintek",
+    "subtitle": "Merge requestek száma sprintenként és csapatonként (a branch névből, különben a sprintnaptárból).",
+    "hint": "A csapat és a sprint a branch név mintájából jön (Beállítások).",
+    "fromCalendar": "Sprint a naptárból",
+    "medianTotal": "Teljes idő mediánja"
+  },
+  "reviewers": {
+    "title": "Reviewer rangsor",
+    "subtitle": "Elvégzett reviewk (jóváhagyás vagy változtatási kérés) méret szerint súlyozva: a legalább {{files}} módosított fájlos merge request {{weight}}-nek számít.",
+    "chart": "Súlyozott review pontszám",
+    "hint": "Egy merge request reviewerenként egyszer számít; a szerző sosem.",
+    "empty": "A kiválasztott merge requestekben nincs review.",
+    "reviewer": "Reviewer",
+    "score": "Pontszám",
+    "reviews": "Reviewk",
+    "bigReviews": "Nagy reviewk",
+    "approvals": "Jóváhagyások",
+    "changesRequested": "Változtatási kérések",
+    "openAssigned": "Nyitott reviewk",
+    "medianResponse": "Válaszidő mediánja"
+  },
+  "assign": {
+    "title": "Reviewer kiosztás",
+    "subtitle": "Egy csapat sprintjének reviewer nélküli nyitott merge requestjeit a rangsorban leghátrébb álló fejlesztő kapja.",
+    "disabled": "A kiosztás ír a GitLabba, és ebben a telepítésben nincs engedélyezve (features.reviewerAssignment az api scope-pal). Lent csak előnézet látható.",
+    "noScope": "A bejelentkezésednek nincs api scope-ja, így a GitLab elutasítja a kiosztást. Jelentkezz be api scope-os tokennel vagy OAuth alkalmazással.",
+    "step1": "1. Csapat és sprint",
+    "step2": "2. Fejlesztők köre",
+    "step3": "3. Terv",
+    "includeDrafts": "Draft merge requestekkel együtt",
+    "pool": "Fejlesztők",
+    "reloadMembers": "Tagok újratöltése",
+    "membersFailed": "Néhány adatforrás tagjai nem olvashatók; a merge requestekben szereplő személyek így is listázva vannak.",
+    "choose": "Válassz csapatot és sprintet.",
+    "none": "Ennek a csapatnak és sprintnek minden nyitott merge requestje rendelkezik reviewerrel.",
+    "noPool": "{{count}} merge requestnek kell reviewer: válassz fejlesztőket.",
+    "apply": "{{count}} reviewer kiosztása a GitLabban",
+    "author": "Szerző",
+    "reviewer": "Javasolt reviewer",
+    "scoreAtPick": "Pontszám a választáskor",
+    "result": "Eredmény",
+    "outcomes": {
+      "assigned": "Kiosztva",
+      "skipped": "Kihagyva (már van reviewere, vagy nem nyitott)",
+      "failed": "Sikertelen (HTTP {{status}})"
+    }
+  },
+  "settings": {
+    "title": "Beállítások",
+    "subtitle": "Sprint- és csapatfelismerés, review súlyozás. A böngészőben tároljuk; a fájl letöltésével megőrizheted vagy megoszthatod.",
+    "customised": "Saját beállítások",
+    "defaults": "Telepítési alapértékek",
+    "save": "Mentés",
+    "reset": "Vissza az alapértékekhez",
+    "download": "Fájl letöltése",
+    "open": "Fájl megnyitása",
+    "saved": "Beállítások mentve.",
+    "resetDone": "Újra a telepítési alapértékek érvényesek.",
+    "opened": "Beállítások betöltve a fájlból.",
+    "branchTitle": "Branch név minta",
+    "branchHint": "JavaScript reguláris kifejezés a forrás branchre. A (?<sprint>…) és (?<team>…) nevesített csoport adja a sprintet és a csapat rövidítését. Alapérték: {{pattern}}",
+    "pattern": "Minta",
+    "sample": "Branch név kipróbálása",
+    "sizeTitle": "Review méret",
+    "sizeHint": "Egy nagy merge request reviewja tovább tart: a rangsorban 1 helyett az alábbi súllyal számít.",
+    "bigFiles": "Nagy, ha a módosított fájlok száma legalább",
+    "bigWeight": "Nagy review súlya",
+    "sprintsTitle": "Sprintnaptár (tartalék)",
+    "sprintsHint": "Akkor használjuk, ha a branch névben nincs sprint: a merge request abba a sprintbe tartozik, amelynek időszakába a létrehozás napja esik.",
+    "start": "Kezdet",
+    "end": "Vége",
+    "addSprint": "Sprint hozzáadása",
+    "removeSprint": "Sprint törlése",
+    "generator": "Egymást követő sprintek generálása",
+    "genFirst": "Első sprint száma",
+    "genLength": "Hossz (nap)",
+    "genCount": "Sprintek száma",
+    "generate": "Generálás",
+    "errors": {
+      "notObject": "A beállítások érvénytelenek.",
+      "patternLength": "A minta 1–{{max}} karakter lehet.",
+      "patternInvalid": "A minta nem érvényes reguláris kifejezés.",
+      "patternGroups": "A mintában kell egy (?<sprint>…) vagy (?<team>…) csoport.",
+      "bigFiles": "A nagy merge request határa legalább 1 egész szám legyen.",
+      "bigWeight": "A súly 1 és 100 között legyen.",
+      "sprintList": "Legfeljebb {{max}} sprint.",
+      "sprintRow": "A(z) {{row}}. sprint sor érvénytelen.",
+      "sprintName": "{{row}}. sprint sor: a név betűket, számokat és . _ - jeleket tartalmazhat (max. 32).",
+      "sprintDates": "{{row}}. sprint sor: adj meg kezdetet és véget (a vége nem lehet a kezdet előtt).",
+      "sprintDuplicate": "{{row}}. sprint sor: \"{{sprint}}\" kétszer szerepel.",
+      "sprintOverlap": "A(z) {{a}} és {{b}} sprint átfedi egymást.",
+      "generator": "Ellenőrizd a generálás értékeit.",
+      "notJson": "A fájl nem érvényes JSON.",
+      "wrongFormat": "A fájl nem GitLab Overseer beállításfájl.",
+      "tooLarge": "A fájl túl nagy.",
+      "unreadable": "A beállítások nem olvashatók."
+    }
   }
 }

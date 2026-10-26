@@ -55,6 +55,42 @@
           >{{ 'shell.menu.dashboard' | translate }}</ix-menu-item
         >
         <ix-menu-item
+          data-testid="menu-merge-requests"
+          icon="list"
+          routerLink="/merge-requests"
+          routerLinkActive
+          #mrs="routerLinkActive"
+          [active]="mrs.isActive"
+          >{{ 'shell.menu.mergeRequests' | translate }}</ix-menu-item
+        >
+        <ix-menu-item
+          data-testid="menu-sprints"
+          icon="calendar"
+          routerLink="/sprints"
+          routerLinkActive
+          #sprintsLink="routerLinkActive"
+          [active]="sprintsLink.isActive"
+          >{{ 'shell.menu.sprints' | translate }}</ix-menu-item
+        >
+        <ix-menu-item
+          data-testid="menu-reviewers"
+          icon="trophy"
+          routerLink="/reviewers"
+          routerLinkActive
+          #reviewersLink="routerLinkActive"
+          [active]="reviewersLink.isActive"
+          >{{ 'shell.menu.reviewers' | translate }}</ix-menu-item
+        >
+        <ix-menu-item
+          data-testid="menu-assign"
+          icon="user-check"
+          routerLink="/assign"
+          routerLinkActive
+          #assignLink="routerLinkActive"
+          [active]="assignLink.isActive"
+          >{{ 'shell.menu.assign' | translate }}</ix-menu-item
+        >
+        <ix-menu-item
           data-testid="menu-sources"
           icon="project"
           routerLink="/sources"
@@ -62,6 +98,15 @@
           #sources="routerLinkActive"
           [active]="sources.isActive"
           >{{ 'shell.menu.sources' | translate }}</ix-menu-item
+        >
+        <ix-menu-item
+          data-testid="menu-settings"
+          icon="cogwheel"
+          routerLink="/settings"
+          routerLinkActive
+          #settingsLink="routerLinkActive"
+          [active]="settingsLink.isActive"
+          >{{ 'shell.menu.settings' | translate }}</ix-menu-item
         >
         <ix-menu-item
           data-testid="menu-connection"

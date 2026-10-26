@@ -1,6 +1,14 @@
 {
-  "app": { "title": "GitLab Overseer" },
-  "common": { "actions": "Actions" },
+  "app": {
+    "title": "GitLab Overseer"
+  },
+  "common": {
+    "actions": "Actions",
+    "exportCsv": "Export CSV",
+    "noDataTitle": "No merge requests loaded",
+    "noDataText": "Collect merge requests on the dashboard or open a dataset file.",
+    "goCollect": "Go to the dashboard"
+  },
   "shell": {
     "toggleLanguage": "Switch language",
     "toggleTheme": "Switch light/dark theme",
@@ -11,7 +19,12 @@
       "dashboard": "Dashboard",
       "sources": "Data sources",
       "connection": "Connection",
-      "login": "Sign in"
+      "login": "Sign in",
+      "mergeRequests": "Merge requests",
+      "sprints": "Sprints",
+      "reviewers": "Reviewers",
+      "assign": "Reviewer assignment",
+      "settings": "Settings"
     }
   },
   "login": {
@@ -43,13 +56,13 @@
   "dashboard": {
     "title": "Dashboard",
     "welcome": "Welcome, {{name}}",
-    "projects": "Projects",
-    "groups": "Groups",
-    "noSourcesTitle": "No data sources yet",
-    "noSourcesText": "Choose the GitLab projects and groups whose data the metrics should use.",
-    "goSources": "Choose data sources",
-    "metricsTitle": "Metrics are coming",
-    "metricsText": "The connection and the data sources are ready. Metric widgets will appear here."
+    "noDataTitle": "No merge requests loaded",
+    "noDataText": "Choose a period and collect the merge requests of your data sources, or open a dataset file.",
+    "mergeRequests": "Merge requests",
+    "statistics": "Merge request times",
+    "phaseChart": "Median phase time per sprint",
+    "countChart": "Merge requests per sprint and team",
+    "sprintDetails": "Sprint details"
   },
   "sources": {
     "title": "Data sources",
@@ -64,7 +77,10 @@
     "emptyTitle": "Nothing selected",
     "emptyText": "Search for projects or groups below, add one by its path or open a saved file.",
     "kind": "Type",
-    "kinds": { "project": "Project", "group": "Group" },
+    "kinds": {
+      "project": "Project",
+      "group": "Group"
+    },
     "name": "Name",
     "path": "Full path",
     "pathInvalid": "Use the full path, e.g. group/subgroup/project.",
@@ -102,18 +118,209 @@
     "version": "GitLab version",
     "user": "Signed in as",
     "method": "Sign-in method",
-    "methods": { "oauth": "OAuth (PKCE)", "token": "Personal access token" },
+    "methods": {
+      "oauth": "OAuth (PKCE)",
+      "token": "Personal access token"
+    },
     "expiresAt": "Token renews before",
     "scopes": "OAuth scopes",
     "redirectUri": "OAuth callback URL",
     "export": "CSV export",
     "exportHint": "Use a semicolon for Excel with a decimal comma (e.g. Hungarian locale).",
     "delimiter": "Delimiter",
-    "delimiters": { "comma": "Comma (,)", "semicolon": "Semicolon (;)", "tab": "Tab" }
+    "delimiters": {
+      "comma": "Comma (,)",
+      "semicolon": "Semicolon (;)",
+      "tab": "Tab"
+    }
   },
   "notFound": {
     "title": "Page not found",
     "text": "This page does not exist.",
     "home": "Go to the dashboard"
+  },
+  "phases": {
+    "total": "Total time",
+    "draft": "Draft time",
+    "reviewAssignment": "Review assignment time",
+    "review": "Review time",
+    "merge": "Merge time"
+  },
+  "phaseHints": {
+    "total": "Created → merged",
+    "draft": "Created as draft → marked ready (draft merge requests only)",
+    "reviewAssignment": "Ready → first reviewer requested",
+    "review": "First reviewer (once ready) → first approval or change request",
+    "merge": "Last approval → merged"
+  },
+  "stats": {
+    "phase": "Phase",
+    "count": "Count",
+    "median": "Median",
+    "average": "Average",
+    "averageShort": "avg {{value}}",
+    "p90": "90th percentile",
+    "min": "Min",
+    "max": "Max"
+  },
+  "states": {
+    "opened": "Open",
+    "merged": "Merged",
+    "closed": "Closed",
+    "locked": "Locked"
+  },
+  "charts": {
+    "other": "Other"
+  },
+  "filter": {
+    "team": "Team",
+    "sprint": "Sprint",
+    "project": "Project",
+    "state": "State",
+    "all": "All",
+    "none": "(none)",
+    "reset": "Reset filters"
+  },
+  "collect": {
+    "title": "Merge request data",
+    "noSources": "No data sources selected yet.",
+    "goSources": "Choose data sources",
+    "from": "Created from",
+    "to": "Created until (empty = today)",
+    "start": "Collect from {{count}} source(s)",
+    "cancel": "Cancel",
+    "download": "Download dataset",
+    "open": "Open dataset",
+    "invalidRange": "Choose a valid period (the end must be after the start).",
+    "progress": {
+      "list": "Listing merge requests: source {{done}} of {{total}}",
+      "details": "Reading timelines: {{done}} of {{total}}"
+    },
+    "done": "{{count}} merge requests collected.",
+    "partial": "{{count}} merge requests collected; the timeline of {{failed}} could not be read.",
+    "truncated": "{{count}} merge requests collected; a source has more than 5000 in this period, so older ones are missing. Choose a shorter period.",
+    "cancelled": "Collection cancelled; the previous data is kept.",
+    "opened": "{{count}} merge requests loaded from the file.",
+    "summary": "{{count}} merge requests created {{from}} – {{to}}, collected {{at}}.",
+    "importErrors": {
+      "notJson": "The file is not valid JSON.",
+      "wrongFormat": "The file is not a GitLab Overseer dataset.",
+      "otherInstance": "The file belongs to another GitLab instance (this app uses {{url}}).",
+      "invalidEntry": "The file contains an invalid merge request.",
+      "tooLarge": "The file is too large.",
+      "unreadable": "The file could not be read."
+    }
+  },
+  "mergeRequests": {
+    "title": "Merge requests",
+    "subtitle": "Every collected merge request with its sprint, team, size and phase times.",
+    "count": "{{count}} merge requests",
+    "mergeRequest": "Merge request",
+    "files": "Files",
+    "reviewers": "Reviewers",
+    "draft": "Draft",
+    "bigHint": "Big merge request: counts with this weight in the reviewer ranking",
+    "fromCalendar": "Sprint from the sprint calendar (not in the branch name)",
+    "calendarShort": "calendar",
+    "showMore": "Show more ({{shown}} of {{total}})"
+  },
+  "sprints": {
+    "title": "Sprints",
+    "subtitle": "Number of merge requests per sprint and team (from the branch name, else the sprint calendar).",
+    "hint": "Teams and sprints come from the branch name pattern (Settings).",
+    "fromCalendar": "Sprint from calendar",
+    "medianTotal": "Median total time"
+  },
+  "reviewers": {
+    "title": "Reviewer ranking",
+    "subtitle": "Reviews done (approval or change request), weighted by size: a merge request with {{files}}+ changed files counts {{weight}}.",
+    "chart": "Weighted review score",
+    "hint": "Each merge request counts once per reviewer; the author never counts.",
+    "empty": "No reviews in the selected merge requests.",
+    "reviewer": "Reviewer",
+    "score": "Score",
+    "reviews": "Reviews",
+    "bigReviews": "Big reviews",
+    "approvals": "Approvals",
+    "changesRequested": "Change requests",
+    "openAssigned": "Open reviews",
+    "medianResponse": "Median response"
+  },
+  "assign": {
+    "title": "Reviewer assignment",
+    "subtitle": "Give the open merge requests of a team's sprint that have no reviewer to the developer lowest on the ranking board.",
+    "disabled": "Assigning writes to GitLab and is not enabled for this deployment (features.reviewerAssignment with the api scope). The plan below is a preview.",
+    "noScope": "Your sign-in has no api scope, so GitLab will refuse the assignment. Sign in with a token or OAuth application that has the api scope.",
+    "step1": "1. Team and sprint",
+    "step2": "2. Developer pool",
+    "step3": "3. Plan",
+    "includeDrafts": "Include draft merge requests",
+    "pool": "Developers",
+    "reloadMembers": "Reload members",
+    "membersFailed": "The members of some data sources could not be read; people seen in the merge requests are still listed.",
+    "choose": "Choose a team and a sprint.",
+    "none": "Every open merge request of this team and sprint already has a reviewer.",
+    "noPool": "{{count}} merge request(s) need a reviewer: choose developers for the pool.",
+    "apply": "Assign {{count}} reviewer(s) in GitLab",
+    "author": "Author",
+    "reviewer": "Proposed reviewer",
+    "scoreAtPick": "Score when picked",
+    "result": "Result",
+    "outcomes": {
+      "assigned": "Assigned",
+      "skipped": "Skipped (has a reviewer now or is not open)",
+      "failed": "Failed (HTTP {{status}})"
+    }
+  },
+  "settings": {
+    "title": "Settings",
+    "subtitle": "Sprint and team detection and review weighting. Saved in this browser; download the file to keep or share it.",
+    "customised": "Your settings",
+    "defaults": "Deployment defaults",
+    "save": "Save",
+    "reset": "Back to defaults",
+    "download": "Download file",
+    "open": "Open file",
+    "saved": "Settings saved.",
+    "resetDone": "The deployment defaults are in use again.",
+    "opened": "Settings loaded from the file.",
+    "branchTitle": "Branch name pattern",
+    "branchHint": "A JavaScript regular expression on the source branch. The named groups (?<sprint>…) and (?<team>…) give the sprint and the team moniker. Default: {{pattern}}",
+    "pattern": "Pattern",
+    "sample": "Try a branch name",
+    "sizeTitle": "Review size",
+    "sizeHint": "A big merge request takes longer to review: in the ranking it counts with the weight below instead of 1.",
+    "bigFiles": "Big from (changed files)",
+    "bigWeight": "Weight of a big review",
+    "sprintsTitle": "Sprint calendar (fallback)",
+    "sprintsHint": "Used when the branch name has no sprint: the merge request belongs to the sprint whose dates contain its creation day.",
+    "start": "Start",
+    "end": "End",
+    "addSprint": "Add sprint",
+    "removeSprint": "Remove sprint",
+    "generator": "Generate consecutive sprints",
+    "genFirst": "First sprint number",
+    "genLength": "Length (days)",
+    "genCount": "Number of sprints",
+    "generate": "Generate",
+    "errors": {
+      "notObject": "The settings are not valid.",
+      "patternLength": "The pattern must be 1–{{max}} characters long.",
+      "patternInvalid": "The pattern is not a valid regular expression.",
+      "patternGroups": "The pattern needs a (?<sprint>…) or (?<team>…) group.",
+      "bigFiles": "The big merge request limit must be a whole number from 1.",
+      "bigWeight": "The weight must be between 1 and 100.",
+      "sprintList": "At most {{max}} sprints.",
+      "sprintRow": "Sprint row {{row}} is not valid.",
+      "sprintName": "Sprint row {{row}}: the name may contain letters, digits, . _ - (max 32).",
+      "sprintDates": "Sprint row {{row}}: choose a start and an end (end not before start).",
+      "sprintDuplicate": "Sprint row {{row}}: \"{{sprint}}\" is listed twice.",
+      "sprintOverlap": "Sprints {{a}} and {{b}} overlap.",
+      "generator": "Check the generator values.",
+      "notJson": "The file is not valid JSON.",
+      "wrongFormat": "The file is not a GitLab Overseer settings file.",
+      "tooLarge": "The file is too large.",
+      "unreadable": "The settings could not be read."
+    }
   }
 }

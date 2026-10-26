@@ -1,0 +1,103 @@
+<ix-card class="panel">
+  <ix-card-content>
+    <ix-typography format="h4">{{ 'collect.title' | translate }}</ix-typography>
+
+    @if (sources.sources().length === 0) {
+      <ix-message-bar type="info" [persistent]="true" data-testid="collect-no-sources">
+        {{ 'collect.noSources' | translate }}
+        <a routerLink="/sources">{{ 'collect.goSources' | translate }}</a>
+      </ix-message-bar>
+    }
+
+    <div class="controls">
+      <ix-date-input
+        data-testid="collect-from"
+        format="yyyy-MM-dd"
+        [label]="'collect.from' | translate"
+        [value]="from()"
+        (valueChange)="setDate(from, $event)"
+      ></ix-date-input>
+      <ix-date-input
+        data-testid="collect-to"
+        format="yyyy-MM-dd"
+        [label]="'collect.to' | translate"
+        [value]="to()"
+        (valueChange)="setDate(to, $event)"
+      ></ix-date-input>
+      @if (progress()) {
+        <ix-button
+          data-testid="collect-cancel"
+          variant="secondary"
+          icon="stop"
+          (click)="cancel()"
+          >{{ 'collect.cancel' | translate }}</ix-button
+        >
+      } @else {
+        <ix-button
+          data-testid="collect-start"
+          icon="refresh"
+          [disabled]="sources.sources().length === 0"
+          (click)="collect()"
+          >{{ 'collect.start' | translate: { count: sources.sources().length } }}</ix-button
+        >
+      }
+      <ix-button
+        data-testid="dataset-download"
+        variant="secondary"
+        icon="download"
+        [disabled]="!data.dataset()"
+        (click)="download()"
+        >{{ 'collect.download' | translate }}</ix-button
+      >
+      <ix-button
+        data-testid="dataset-open"
+        variant="secondary"
+        icon="upload"
+        (click)="fileInput.click()"
+        >{{ 'collect.open' | translate }}</ix-button
+      >
+      <input
+        #fileInput
+        class="hidden-input"
+        data-testid="dataset-file-input"
+        type="file"
+        accept="application/json,.json"
+        (change)="open($event)"
+      />
+    </div>
+
+    @if (progress(); as p) {
+      <ix-progress-indicator
+        data-testid="collect-progress"
+        [value]="percent(p)"
+        [label]="'collect.progress.' + p.phase | translate: { done: p.done, total: p.total }"
+        [showTextAsTooltip]="false"
+      ></ix-progress-indicator>
+    }
+
+    @if (notice(); as n) {
+      <ix-message-bar
+        data-testid="collect-notice"
+        [type]="n.type"
+        (closedChange)="notice.set(null)"
+      >
+        {{ n.key | translate: n.params }}
+      </ix-message-bar>
+    }
+
+    @if (data.dataset(); as dataset) {
+      <p class="muted summary" data-testid="dataset-summary">
+        {{
+          'collect.summary'
+            | translate
+              : {
+                  count: dataset.mergeRequests.length,
+                  from: (dataset.range.from | date: 'yyyy-MM-dd'),
+                  to: dataset.range.to ? (dataset.range.to | date: 'yyyy-MM-dd') : '…',
+                  at: (dataset.collectedAt | date: 'short'),
+                }
+        }}
+      </p>
+    }
+  </ix-card-content>
+</ix-card>

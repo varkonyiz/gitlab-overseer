@@ -1,0 +1,49 @@
+@use '../../shared/page';
+
+.actions {
+  margin-block-end: 1rem;
+}
+
+.hidden-input {
+  display: none;
+}
+
+.mono {
+  font-family: var(--theme-font-family-mono, monospace);
+}
+
+ix-input,
+ix-number-input,
+ix-date-input {
+  min-width: 10rem;
+}
+
+.stack ix-input {
+  width: 100%;
+}
+
+.row {
+  align-items: flex-end;
+}
+
+.sample-result {
+  padding-block-end: 0.5rem;
+}
+
+.error-text {
+  color: var(--theme-color-alarm-text, var(--theme-color-alarm));
+}
+
+.generator-title {
+  display: block;
+  margin-block: 1.5rem 0.5rem;
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}

@@ -8,7 +8,11 @@
 // Variables (all optional; unset ones keep the value of the bundled config file):
 //   GITLAB_URL (default: CI_SERVER_URL), OAUTH_CLIENT_ID, OAUTH_SCOPES (space separated),
 //   OAUTH_REDIRECT_URI, ALLOW_PERSONAL_ACCESS_TOKEN (true|false), DEFAULT_LANGUAGE (en|hu),
-//   DEFAULT_SOURCES (comma separated, e.g. "group:my-org,project:my-org/app").
+//   DEFAULT_SOURCES (comma separated, e.g. "group:my-org,project:my-org/app"),
+//   BRANCH_PATTERN (regular expression with (?<sprint>…)/(?<team>…) groups),
+//   SPRINTS (JSON array of { "sprint", "start", "end" }), BIG_MR_FILES, BIG_MR_WEIGHT,
+//   REVIEWER_ASSIGNMENT (true|false; true also allows the api scope in OAUTH_SCOPES).
+// The app validates the result again at startup and shows the first problem.
 import { copyFileSync, readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 
@@ -55,6 +59,45 @@ if (env.DEFAULT_SOURCES !== undefined) {
       }
       return { kind, path: rest.join(':') };
     });
+}
+
+config.analytics ??= {};
+if (env.BRANCH_PATTERN) {
+  try {
+    new RegExp(env.BRANCH_PATTERN);
+  } catch {
+    fail('BRANCH_PATTERN is not a valid regular expression.');
+  }
+  config.analytics.branchPattern = env.BRANCH_PATTERN;
+}
+if (env.SPRINTS) {
+  try {
+    config.analytics.sprints = JSON.parse(env.SPRINTS);
+  } catch {
+    fail('SPRINTS must be a JSON array of { "sprint", "start", "end" }.');
+  }
+  if (!Array.isArray(config.analytics.sprints)) {
+    fail('SPRINTS must be a JSON array.');
+  }
+}
+for (const [name, key] of [
+  ['BIG_MR_FILES', 'bigMergeRequestFiles'],
+  ['BIG_MR_WEIGHT', 'bigMergeRequestWeight'],
+]) {
+  if (env[name]) {
+    const value = Number(env[name]);
+    if (!Number.isFinite(value) || value < 1) {
+      fail(`${name} must be a number from 1.`);
+    }
+    config.analytics[key] = value;
+  }
+}
+config.features ??= {};
+if (env.REVIEWER_ASSIGNMENT !== undefined) {
+  if (!['true', 'false'].includes(env.REVIEWER_ASSIGNMENT)) {
+    fail('REVIEWER_ASSIGNMENT must be true or false.');
+  }
+  config.features.reviewerAssignment = env.REVIEWER_ASSIGNMENT === 'true';
 }
 
 let origin;
