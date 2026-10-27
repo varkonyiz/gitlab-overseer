@@ -121,7 +121,7 @@ parallel; a second collection only refetches merge requests whose `updated_at` c
 | Total time | created → merged |
 | Draft time | created as draft → first "marked as ready" (only merge requests created as draft) |
 | Review assignment time | ready → first "requested review from" someone other than the author (0 when the reviewer was set earlier; reviewers set at creation count from the creation) |
-| Review time | the later of ready and first reviewer → first "approved" or "requested changes" by someone other than the author |
+| Review time | first reviewer requested → first "approved" or "requested changes" by someone other than the author (the way to ready is the draft time, so it does not delay the start) |
 | Merge time | last approval before the merge → merged |
 
 Draft, assignment, review and merge do not add up to the total when there was rework between a change

@@ -150,7 +150,7 @@
     "total": "Létrehozás → merge",
     "draft": "Draftként létrehozva → késznek jelölve (csak draft merge requestek)",
     "reviewAssignment": "Kész → első reviewer felkérése",
-    "review": "Első reviewer (ha már kész) → első jóváhagyás vagy változtatási kérés",
+    "review": "Első reviewer felkérése → első jóváhagyás vagy változtatási kérés",
     "merge": "Utolsó jóváhagyás → merge"
   },
   "stats": {

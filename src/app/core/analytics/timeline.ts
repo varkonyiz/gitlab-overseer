@@ -7,8 +7,9 @@ import { MergeRequestRecord, MrEvent } from './merge-request';
  * - `draft`: created as draft → first marked ready (null when it was not created as a draft, so
  *   the statistics cover draft merge requests only).
  * - `reviewAssignment`: ready → first reviewer requested (0 when a reviewer was set earlier).
- * - `review`: review start (the later of ready and first reviewer) → first review decision
- *   (approved or changes requested) by someone other than the author.
+ * - `review`: first reviewer requested → first review decision (approved or changes requested) by
+ *   someone other than the author. Only the assignment counts as the start: the way to ready is
+ *   already the draft time.
  * - `merge`: last approval before the merge → merged.
  *
  * Draft, assignment, review and merge do not add up to the total when there was rework between
@@ -23,7 +24,6 @@ export interface MrTimeline {
   readonly createdAsDraft: boolean;
   readonly readyAt: number | null;
   readonly firstReviewerAt: number | null;
-  readonly reviewStartAt: number | null;
   readonly firstDecisionAt: number | null;
   readonly firstDecision: ReviewDecision | null;
   readonly finalApprovalAt: number | null;
@@ -49,9 +49,6 @@ export function computeTimeline(mr: MergeRequestRecord): MrTimeline {
   const firstReviewerAt =
     time(requested) ?? (mr.reviewers.some((r) => r.id !== mr.author.id) ? createdAt : null);
 
-  const reviewStartAt =
-    readyAt !== null && firstReviewerAt !== null ? Math.max(readyAt, firstReviewerAt) : null;
-
   const decision = events.find(
     (e) =>
       (e.kind === 'approved' || e.kind === 'changesRequested') &&
@@ -70,7 +67,6 @@ export function computeTimeline(mr: MergeRequestRecord): MrTimeline {
     createdAsDraft,
     readyAt,
     firstReviewerAt,
-    reviewStartAt,
     firstDecisionAt,
     firstDecision: decision ? (decision.kind as ReviewDecision) : null,
     finalApprovalAt,
@@ -82,10 +78,7 @@ export function computeTimeline(mr: MergeRequestRecord): MrTimeline {
         readyAt !== null && firstReviewerAt !== null
           ? Math.max(0, firstReviewerAt - readyAt)
           : null,
-      review:
-        reviewStartAt !== null && firstDecisionAt !== null
-          ? Math.max(0, firstDecisionAt - reviewStartAt)
-          : null,
+      review: span(firstReviewerAt, firstDecisionAt),
       merge: span(finalApprovalAt, mergedAt),
     },
   };

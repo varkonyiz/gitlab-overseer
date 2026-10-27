@@ -46,7 +46,7 @@ describe('computeTimeline', () => {
     expect(t.phases.reviewAssignment).toBe(1 * HOUR);
   });
 
-  it('computeTimeline_ReviewerBeforeReady_AssignmentZeroReviewFromReady', () => {
+  it('computeTimeline_ReviewerBeforeReady_AssignmentZeroReviewFromAssignment', () => {
     const t = computeTimeline(
       record({
         createdAt: at(1, 0),
@@ -60,7 +60,8 @@ describe('computeTimeline', () => {
     );
 
     expect(t.phases.reviewAssignment).toBe(0);
-    expect(t.phases.review).toBe(4 * HOUR);
+    // From the assignment at 1:00, not from ready at 3:00 (that part is the draft time).
+    expect(t.phases.review).toBe(6 * HOUR);
     expect(t.firstDecision).toBe('changesRequested');
     expect(t.phases.total).toBeNull();
   });

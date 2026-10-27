@@ -150,7 +150,7 @@
     "total": "Created → merged",
     "draft": "Created as draft → marked ready (draft merge requests only)",
     "reviewAssignment": "Ready → first reviewer requested",
-    "review": "First reviewer (once ready) → first approval or change request",
+    "review": "First reviewer requested → first approval or change request",
     "merge": "Last approval → merged"
   },
   "stats": {
