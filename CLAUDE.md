@@ -1,7 +1,8 @@
 # GitLab Overseer – guide for Claude sessions
 
 Angular 22 + Siemens iX SPA hosted on GitLab Pages (no backend, no database). It signs in to GitLab with
-OAuth PKCE and will visualise SDLC metrics from the GitLab REST API. Read `README.md` first (configuration,
+OAuth PKCE and visualises SDLC metrics from the GitLab REST API (merge request phase times, sprints/teams,
+reviewer ranking, reviewer assignment). Read `README.md` first (configuration,
 deployment, code layout, security).
 
 ## Commands
@@ -33,13 +34,25 @@ npm run build
   `Content-Type: application/x-www-form-urlencoded`.
 - Browser storage only through `core/storage/browser-storage.ts` (keys prefixed `gitlab-overseer.`).
   Anything users keep beyond the browser is a file they download/open; validate opened files fully.
+- Analytics logic is pure and lives in `core/analytics` (timeline, classification, statistics, reviewers,
+  assignment); pages only compose it. `MergeRequestDataService` holds the dataset and the derived signals
+  (`all`, `filtered`, `ranking`, `overallRanking`); settings changes re-derive everything.
+- Phase definitions are documented in `timeline.ts` and the README "Metrics" table: keep both in sync.
+- Test data: `src/testing/merge-requests.ts` (`record()`, `event()`, `analyzed()`, `at(day, hour)`).
+- Charts: `shared/chart` (ECharts, iX theme). Colours come from `chart-palette.ts` in fixed order
+  (validated with the dataviz palette validator); colour follows the entity (`colouredTeams` from all
+  loaded rows, not the filtered ones). Series must stay plain data (`SURFACE`/`TEXT` placeholders are
+  replaced at render time); formatters go into `tooltip`/axes.
+- `ix-date-input` emits an empty `valueChange` while it initialises: handle it with
+  `shared/date-input.ts` `dateInputValue()`.
 - A new deployment setting needs: `AppConfig` + `parseAppConfig` (validation, tests), the default in
   `public/config/app-config.json`, a variable in `scripts/configure-deployment.mjs`, and the README tables.
 
 ## Security checklist
 
 - [ ] Tokens only go to `<gitlabUrl>/api/` (`isGitLabApi`); never log or export them.
-- [ ] Only read scopes; no client secret anywhere.
+- [ ] Only read scopes, except `api` behind `features.reviewerAssignment`; the reviewer `PUT` is the only
+      write; no client secret anywhere.
 - [ ] GitLab data is untrusted: render as text, no `innerHTML`/`bypassSecurityTrust*`; CSV via `toCsv`
       (formula neutralisation).
 - [ ] CSP meta tag in `src/index.html` keeps the `connect-src 'self' https:` marker the deploy script narrows.

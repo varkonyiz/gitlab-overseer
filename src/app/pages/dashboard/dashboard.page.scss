@@ -1,9 +1,30 @@
 @use '../../shared/page';
 
+.counts,
 .kpis {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr));
   gap: 1rem;
   max-width: 72rem;
   margin-block-end: 1rem;
+}
+
+.heading {
+  justify-content: space-between;
+  margin-block-end: 0.5rem;
+}
+
+.table-wrap {
+  overflow-x: auto;
+}
+
+.charts {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(28rem, 100%), 1fr));
+  gap: 1rem;
+  max-width: 72rem;
+
+  ix-card {
+    width: 100%;
+  }
 }

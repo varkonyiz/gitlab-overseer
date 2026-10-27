@@ -16,6 +16,32 @@ export const routes: Routes = [
     loadComponent: () => import('./pages/dashboard/dashboard.page').then((m) => m.DashboardPage),
   },
   {
+    path: 'merge-requests',
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('./pages/merge-requests/merge-requests.page').then((m) => m.MergeRequestsPage),
+  },
+  {
+    path: 'sprints',
+    canActivate: [authGuard],
+    loadComponent: () => import('./pages/sprints/sprints.page').then((m) => m.SprintsPage),
+  },
+  {
+    path: 'reviewers',
+    canActivate: [authGuard],
+    loadComponent: () => import('./pages/reviewers/reviewers.page').then((m) => m.ReviewersPage),
+  },
+  {
+    path: 'assign',
+    canActivate: [authGuard],
+    loadComponent: () => import('./pages/assign/assign.page').then((m) => m.AssignPage),
+  },
+  {
+    path: 'settings',
+    canActivate: [authGuard],
+    loadComponent: () => import('./pages/settings/settings.page').then((m) => m.SettingsPage),
+  },
+  {
     path: 'sources',
     canActivate: [authGuard],
     loadComponent: () =>

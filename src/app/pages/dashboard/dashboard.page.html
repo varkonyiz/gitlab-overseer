@@ -3,38 +3,113 @@
   [headerSubtitle]="'dashboard.welcome' | translate: { name: auth.user()?.name ?? '' }"
 ></ix-content-header>
 
-<div class="kpis">
-  <ix-kpi
-    data-testid="kpi-projects"
-    [label]="'dashboard.projects' | translate"
-    [value]="sources.projects().length"
-  ></ix-kpi>
-  <ix-kpi
-    data-testid="kpi-groups"
-    [label]="'dashboard.groups' | translate"
-    [value]="sources.groups().length"
-  ></ix-kpi>
-</div>
+<app-collect-panel></app-collect-panel>
 
-<ix-card class="block">
-  <ix-card-content>
-    @if (sources.sources().length === 0) {
+@if (!data.dataset()) {
+  <ix-card class="block">
+    <ix-card-content>
       <ix-empty-state
-        data-testid="dashboard-no-sources"
-        icon="project"
-        [header]="'dashboard.noSourcesTitle' | translate"
-        [subHeader]="'dashboard.noSourcesText' | translate"
-      ></ix-empty-state>
-      <ix-button data-testid="dashboard-go-sources" routerLink="/sources">{{
-        'dashboard.goSources' | translate
-      }}</ix-button>
-    } @else {
-      <ix-empty-state
-        data-testid="dashboard-metrics-pending"
+        data-testid="dashboard-no-data"
         icon="barchart"
-        [header]="'dashboard.metricsTitle' | translate"
-        [subHeader]="'dashboard.metricsText' | translate"
+        [header]="'dashboard.noDataTitle' | translate"
+        [subHeader]="'dashboard.noDataText' | translate"
       ></ix-empty-state>
+    </ix-card-content>
+  </ix-card>
+} @else {
+  <app-analysis-filter></app-analysis-filter>
+
+  <div class="counts" data-testid="dashboard-counts">
+    <ix-kpi [label]="'dashboard.mergeRequests' | translate" [value]="counts().total"></ix-kpi>
+    <ix-kpi [label]="'states.merged' | translate" [value]="counts().merged"></ix-kpi>
+    <ix-kpi [label]="'states.opened' | translate" [value]="counts().opened"></ix-kpi>
+    <ix-kpi [label]="'states.closed' | translate" [value]="counts().closed"></ix-kpi>
+  </div>
+
+  <div class="kpis" data-testid="dashboard-kpis">
+    @for (s of statistics(); track s.phase) {
+      <ix-kpi
+        orientation="vertical"
+        [attr.data-testid]="'kpi-' + s.phase"
+        [label]="('phases.' + s.phase | translate) + ' · ' + ('stats.median' | translate)"
+        [value]="s.summary.median | duration: preferences.language()"
+        [unit]="
+          'stats.averageShort'
+            | translate: { value: (s.summary.mean | duration: preferences.language()) }
+        "
+      ></ix-kpi>
     }
-  </ix-card-content>
-</ix-card>
+  </div>
+
+  <ix-card class="block">
+    <ix-card-content>
+      <div class="row heading">
+        <ix-typography format="h4">{{ 'dashboard.statistics' | translate }}</ix-typography>
+        <ix-button
+          data-testid="statistics-csv"
+          variant="secondary"
+          icon="export"
+          (click)="downloadStatistics()"
+          >{{ 'common.exportCsv' | translate }}</ix-button
+        >
+      </div>
+      <div class="table-wrap">
+        <table class="table" data-testid="statistics-table">
+          <thead>
+            <tr>
+              <th>{{ 'stats.phase' | translate }}</th>
+              <th class="num">{{ 'stats.count' | translate }}</th>
+              <th class="num">{{ 'stats.median' | translate }}</th>
+              <th class="num">{{ 'stats.average' | translate }}</th>
+              <th class="num">{{ 'stats.p90' | translate }}</th>
+              <th class="num">{{ 'stats.min' | translate }}</th>
+              <th class="num">{{ 'stats.max' | translate }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (s of statistics(); track s.phase) {
+              <tr [attr.data-testid]="'stats-' + s.phase">
+                <td>
+                  {{ 'phases.' + s.phase | translate }}
+                  <div class="muted small">{{ 'phaseHints.' + s.phase | translate }}</div>
+                </td>
+                <td class="num">{{ s.summary.count }}</td>
+                <td class="num">{{ s.summary.median | duration: preferences.language() }}</td>
+                <td class="num">{{ s.summary.mean | duration: preferences.language() }}</td>
+                <td class="num">{{ s.summary.p90 | duration: preferences.language() }}</td>
+                <td class="num">{{ s.summary.min | duration: preferences.language() }}</td>
+                <td class="num">{{ s.summary.max | duration: preferences.language() }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </ix-card-content>
+  </ix-card>
+
+  <div class="charts">
+    <ix-card>
+      <ix-card-content>
+        <ix-typography format="h4">{{ 'dashboard.phaseChart' | translate }}</ix-typography>
+        <app-chart
+          data-testid="chart-phases"
+          [option]="phaseChart()"
+          [label]="'dashboard.phaseChart' | translate"
+        ></app-chart>
+      </ix-card-content>
+    </ix-card>
+    <ix-card>
+      <ix-card-content>
+        <div class="row heading">
+          <ix-typography format="h4">{{ 'dashboard.countChart' | translate }}</ix-typography>
+          <a routerLink="/sprints">{{ 'dashboard.sprintDetails' | translate }}</a>
+        </div>
+        <app-chart
+          data-testid="chart-counts"
+          [option]="countChart()"
+          [label]="'dashboard.countChart' | translate"
+        ></app-chart>
+      </ix-card-content>
+    </ix-card>
+  </div>
+}

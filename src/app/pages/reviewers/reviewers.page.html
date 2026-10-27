@@ -1,0 +1,85 @@
+<ix-content-header
+  [headerTitle]="'reviewers.title' | translate"
+  [headerSubtitle]="
+    'reviewers.subtitle'
+      | translate
+        : { files: settings().bigMergeRequestFiles, weight: settings().bigMergeRequestWeight }
+  "
+></ix-content-header>
+
+@if (!data.dataset()) {
+  <ix-empty-state
+    data-testid="no-data"
+    icon="trophy"
+    [header]="'common.noDataTitle' | translate"
+    [subHeader]="'common.noDataText' | translate"
+  ></ix-empty-state>
+  <ix-button routerLink="/dashboard">{{ 'common.goCollect' | translate }}</ix-button>
+} @else {
+  <app-analysis-filter></app-analysis-filter>
+  @if (ranked().length > 0) {
+    <ix-card class="block">
+      <ix-card-content>
+        <ix-typography format="h4">{{ 'reviewers.chart' | translate }}</ix-typography>
+        <app-chart
+          class="ranking-chart"
+          [option]="chart()"
+          [label]="'reviewers.chart' | translate"
+        ></app-chart>
+      </ix-card-content>
+    </ix-card>
+  }
+  <ix-card class="block">
+    <ix-card-content>
+      <div class="row heading">
+        <span class="muted">{{ 'reviewers.hint' | translate }}</span>
+        <ix-button
+          data-testid="ranking-csv"
+          variant="secondary"
+          icon="export"
+          (click)="downloadCsv()"
+          >{{ 'common.exportCsv' | translate }}</ix-button
+        >
+      </div>
+      @if (ranked().length === 0) {
+        <p class="muted" data-testid="ranking-empty">{{ 'reviewers.empty' | translate }}</p>
+      } @else {
+        <div class="table-wrap">
+          <table class="table" data-testid="ranking-table">
+            <thead>
+              <tr>
+                <th class="num">#</th>
+                <th>{{ 'reviewers.reviewer' | translate }}</th>
+                <th class="num">{{ 'reviewers.score' | translate }}</th>
+                <th class="num">{{ 'reviewers.reviews' | translate }}</th>
+                <th class="num">{{ 'reviewers.bigReviews' | translate }}</th>
+                <th class="num">{{ 'reviewers.approvals' | translate }}</th>
+                <th class="num">{{ 'reviewers.changesRequested' | translate }}</th>
+                <th class="num">{{ 'reviewers.openAssigned' | translate }}</th>
+                <th class="num">{{ 'reviewers.medianResponse' | translate }}</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (r of ranked(); track r.user.id) {
+                <tr [attr.data-testid]="'rank-' + r.user.username">
+                  <td class="num">{{ r.rank }}</td>
+                  <td>
+                    {{ r.user.name }}
+                    <div class="muted small">&#64;{{ r.user.username }}</div>
+                  </td>
+                  <td class="num strong">{{ r.score }}</td>
+                  <td class="num">{{ r.reviews }}</td>
+                  <td class="num">{{ r.bigReviews }}</td>
+                  <td class="num">{{ r.approvals }}</td>
+                  <td class="num">{{ r.changesRequested }}</td>
+                  <td class="num">{{ r.openAssigned }}</td>
+                  <td class="num">{{ r.medianResponse | duration: preferences.language() }}</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+    </ix-card-content>
+  </ix-card>
+}

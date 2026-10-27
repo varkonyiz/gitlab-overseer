@@ -52,6 +52,10 @@ describe('LoginPage', () => {
     TestBed.inject(HttpTestingController)
       .expectOne(`${API}/user`)
       .flush({ id: 1, username: 'u', name: 'U', avatar_url: null, web_url: '' });
+    await new Promise((r) => setTimeout(r));
+    TestBed.inject(HttpTestingController)
+      .expectOne(`${API}/personal_access_tokens/self`)
+      .flush({}, { status: 404, statusText: 'Not Found' });
     await done;
 
     expect(navigate).toHaveBeenCalledWith('/sources');
@@ -71,6 +75,10 @@ describe('LoginPage', () => {
     TestBed.inject(HttpTestingController)
       .expectOne(`${API}/user`)
       .flush({ id: 1, username: 'u', name: 'U', avatar_url: null, web_url: '' });
+    await new Promise((r) => setTimeout(r));
+    TestBed.inject(HttpTestingController)
+      .expectOne(`${API}/personal_access_tokens/self`)
+      .flush({}, { status: 404, statusText: 'Not Found' });
     await done;
 
     expect(navigate).toHaveBeenCalledWith('/');

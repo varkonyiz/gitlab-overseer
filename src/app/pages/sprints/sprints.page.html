@@ -1,0 +1,64 @@
+<ix-content-header
+  [headerTitle]="'sprints.title' | translate"
+  [headerSubtitle]="'sprints.subtitle' | translate"
+></ix-content-header>
+
+@if (!data.dataset()) {
+  <ix-empty-state
+    data-testid="no-data"
+    icon="calendar"
+    [header]="'common.noDataTitle' | translate"
+    [subHeader]="'common.noDataText' | translate"
+  ></ix-empty-state>
+  <ix-button routerLink="/dashboard">{{ 'common.goCollect' | translate }}</ix-button>
+} @else {
+  <app-analysis-filter></app-analysis-filter>
+  <ix-card class="block">
+    <ix-card-content>
+      <ix-typography format="h4">{{ 'dashboard.countChart' | translate }}</ix-typography>
+      <app-chart [option]="chart()" [label]="'dashboard.countChart' | translate"></app-chart>
+    </ix-card-content>
+  </ix-card>
+  <ix-card class="block">
+    <ix-card-content>
+      <div class="row heading">
+        <span class="muted">{{ 'sprints.hint' | translate }}</span>
+        <ix-button
+          data-testid="sprints-csv"
+          variant="secondary"
+          icon="export"
+          (click)="downloadCsv()"
+          >{{ 'common.exportCsv' | translate }}</ix-button
+        >
+      </div>
+      <div class="table-wrap">
+        <table class="table" data-testid="sprints-table">
+          <thead>
+            <tr>
+              <th>{{ 'filter.sprint' | translate }}</th>
+              <th>{{ 'filter.team' | translate }}</th>
+              <th class="num">{{ 'dashboard.mergeRequests' | translate }}</th>
+              <th class="num">{{ 'states.merged' | translate }}</th>
+              <th class="num">{{ 'states.opened' | translate }}</th>
+              <th class="num">{{ 'sprints.fromCalendar' | translate }}</th>
+              <th class="num">{{ 'sprints.medianTotal' | translate }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (r of rows(); track r.sprint + '/' + r.team) {
+              <tr [attr.data-testid]="'sprint-row-' + r.sprint + '-' + r.team">
+                <td>{{ r.sprint === noValue ? ('filter.none' | translate) : r.sprint }}</td>
+                <td>{{ r.team === noValue ? ('filter.none' | translate) : r.team }}</td>
+                <td class="num">{{ r.mergeRequests }}</td>
+                <td class="num">{{ r.merged }}</td>
+                <td class="num">{{ r.opened }}</td>
+                <td class="num">{{ r.fromCalendar }}</td>
+                <td class="num">{{ r.medianTotal | duration: preferences.language() }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </ix-card-content>
+  </ix-card>
+}

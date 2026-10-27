@@ -1,0 +1,59 @@
+<div class="filters" data-testid="analysis-filter">
+  <ix-select
+    data-testid="filter-team"
+    mode="multiple"
+    [label]="'filter.team' | translate"
+    [i18nPlaceholder]="'filter.all' | translate"
+    [value]="data.filter().teams"
+    (valueChange)="setTeams($event.detail)"
+  >
+    @for (team of data.teams(); track team) {
+      <ix-select-item
+        [value]="team"
+        [label]="team === noValue ? ('filter.none' | translate) : team"
+      ></ix-select-item>
+    }
+  </ix-select>
+  <ix-select
+    data-testid="filter-sprint"
+    mode="multiple"
+    [label]="'filter.sprint' | translate"
+    [i18nPlaceholder]="'filter.all' | translate"
+    [value]="data.filter().sprints"
+    (valueChange)="setSprints($event.detail)"
+  >
+    @for (sprint of data.sprints(); track sprint) {
+      <ix-select-item
+        [value]="sprint"
+        [label]="sprint === noValue ? ('filter.none' | translate) : sprint"
+      ></ix-select-item>
+    }
+  </ix-select>
+  <ix-select
+    data-testid="filter-project"
+    mode="multiple"
+    [label]="'filter.project' | translate"
+    [i18nPlaceholder]="'filter.all' | translate"
+    [value]="projectValues()"
+    (valueChange)="setProjects($event.detail)"
+  >
+    @for (project of data.projects(); track project.id) {
+      <ix-select-item [value]="'' + project.id" [label]="project.path"></ix-select-item>
+    }
+  </ix-select>
+  <ix-select
+    data-testid="filter-state"
+    mode="multiple"
+    [label]="'filter.state' | translate"
+    [i18nPlaceholder]="'filter.all' | translate"
+    [value]="data.filter().states"
+    (valueChange)="setStates($event.detail)"
+  >
+    @for (state of states; track state) {
+      <ix-select-item [value]="state" [label]="'states.' + state | translate"></ix-select-item>
+    }
+  </ix-select>
+  <ix-button data-testid="filter-reset" variant="tertiary" icon="reset" (click)="reset()">{{
+    'filter.reset' | translate
+  }}</ix-button>
+</div>

@@ -1,0 +1,30 @@
+@use '../page';
+
+.panel {
+  display: block;
+  width: 100%;
+  max-width: 72rem;
+  margin-block-end: 1rem;
+}
+
+.controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 0.75rem;
+  margin-block: 0.75rem;
+}
+
+.hidden-input {
+  display: none;
+}
+
+.summary {
+  margin: 0.5rem 0 0;
+}
+
+ix-message-bar,
+ix-progress-indicator {
+  display: block;
+  margin-block: 0.5rem;
+}

@@ -4,7 +4,15 @@ import { firstValueFrom } from 'rxjs';
 
 import { ConfigService } from '../config/config.service';
 import { SourceKind } from '../config/app-config';
-import { GitLabGroup, GitLabProject, GitLabUser, GitLabVersion } from './gitlab.models';
+import {
+  GitLabGroup,
+  GitLabMember,
+  GitLabMergeRequest,
+  GitLabNote,
+  GitLabProject,
+  GitLabUser,
+  GitLabVersion,
+} from './gitlab.models';
 import { Page, nextPageUrl, parseTotal } from './pagination';
 
 export type QueryParams = Record<string, string | number | boolean | undefined | null>;
@@ -123,6 +131,66 @@ export class GitLabApiService {
     return this.get<GitLabGroup>(`/groups/${encodeId(idOrPath)}`, { with_projects: false });
   }
 
+  /** Merge requests of a project or group (incl. subgroups) created in `[createdAfter, createdBefore)`. */
+  listMergeRequests(
+    kind: SourceKind,
+    id: number,
+    createdAfter: Date,
+    createdBefore: Date | null,
+    options: ListOptions = {},
+  ): Promise<GitLabMergeRequest[]> {
+    return this.getAll<GitLabMergeRequest>(
+      `/${kind === 'project' ? 'projects' : 'groups'}/${id}/merge_requests`,
+      {
+        state: 'all',
+        scope: 'all',
+        created_after: createdAfter.toISOString(),
+        created_before: createdBefore?.toISOString(),
+        order_by: 'created_at',
+        sort: 'desc',
+      },
+      options,
+    );
+  }
+
+  mergeRequest(projectId: number, iid: number): Promise<GitLabMergeRequest> {
+    return this.get<GitLabMergeRequest>(`/projects/${projectId}/merge_requests/${iid}`);
+  }
+
+  mergeRequestNotes(
+    projectId: number,
+    iid: number,
+    options: ListOptions = {},
+  ): Promise<GitLabNote[]> {
+    return this.getAll<GitLabNote>(
+      `/projects/${projectId}/merge_requests/${iid}/notes`,
+      { sort: 'asc', order_by: 'created_at' },
+      options,
+    );
+  }
+
+  /** Direct and inherited members of a project or group. */
+  members(kind: SourceKind, id: number, options: ListOptions = {}): Promise<GitLabMember[]> {
+    return this.getAll<GitLabMember>(
+      `/${kind === 'project' ? 'projects' : 'groups'}/${id}/members/all`,
+      {},
+      options,
+    );
+  }
+
+  /** Replaces the reviewers of a merge request (needs the `api` scope). */
+  setReviewers(
+    projectId: number,
+    iid: number,
+    reviewerIds: readonly number[],
+  ): Promise<GitLabMergeRequest> {
+    return firstValueFrom(
+      this.http.put<GitLabMergeRequest>(this.url(`/projects/${projectId}/merge_requests/${iid}`), {
+        reviewer_ids: reviewerIds,
+      }),
+    );
+  }
+
   /**
    * Number of merge requests created since `createdAfter` in a project or group (incl. subgroups),
    * from `X-Total` of a one-item page. Null when GitLab does not report a total (over 10 000).
@@ -140,6 +208,9 @@ export class GitLabApiService {
     return page.total ?? (page.next === null ? page.items.length : null);
   }
 }
+
+/** GitLab's Developer role; reviewers are picked from members with at least this level. */
+export const DEVELOPER_ACCESS = 30;
 
 /** Numeric IDs as is, full paths URL-encoded (`group/sub/project` → `group%2Fsub%2Fproject`). */
 export function encodeId(idOrPath: number | string): string {

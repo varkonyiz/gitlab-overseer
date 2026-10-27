@@ -90,6 +90,7 @@ describe('AuthService', () => {
       token_type: 'Bearer',
       expires_in: 7200,
       refresh_token: 'rt',
+      scope: 'read_api',
     });
     await Promise.resolve();
     await new Promise((r) => setTimeout(r));
@@ -103,6 +104,7 @@ describe('AuthService', () => {
     expect(auth.returnTo()).toBe('/sources');
     expect(sessionStorage.getItem(PENDING_KEY)).toBeNull();
     expect(JSON.parse(sessionStorage.getItem(SESSION_KEY)!).refreshToken).toBe('rt');
+    expect(auth.hasScope('api')).toBe(false);
   });
 
   it('init_StateMismatch_RefusesWithoutTokenRequest', async () => {
@@ -189,10 +191,13 @@ describe('AuthService', () => {
     const req = http.expectOne(`${API}/user`);
     expect(req.request.headers.get('Authorization')).toBe('Bearer glpat-1234567890');
     req.flush(USER);
+    await new Promise((r) => setTimeout(r));
+    http.expectOne(`${API}/personal_access_tokens/self`).flush({ scopes: ['read_api', 'api'] });
 
     expect(await result).toBe(true);
     expect(auth.user()?.username).toBe('dev');
     expect(auth.session()?.method).toBe('token');
+    expect(auth.hasScope('api')).toBe(true);
   });
 
   it('loginWithToken_Rejected_InvalidTokenError', async () => {

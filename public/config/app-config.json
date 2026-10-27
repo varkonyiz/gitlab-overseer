@@ -7,5 +7,14 @@
   },
   "allowPersonalAccessToken": true,
   "defaultLanguage": "en",
-  "defaultSources": []
+  "defaultSources": [],
+  "analytics": {
+    "branchPattern": "^(?<sprint>\\d{3})_(?<team>[A-Za-z]{2,3})_",
+    "sprints": [],
+    "bigMergeRequestFiles": 50,
+    "bigMergeRequestWeight": 2
+  },
+  "features": {
+    "reviewerAssignment": false
+  }
 }

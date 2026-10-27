@@ -1,0 +1,32 @@
+@use '../../shared/page';
+
+.row {
+  align-items: flex-end;
+}
+
+ix-select {
+  min-width: 12rem;
+}
+
+.pool {
+  min-width: 20rem;
+  flex: 1;
+}
+
+.pool-table {
+  max-width: 32rem;
+  margin-block-start: 1rem;
+}
+
+.heading {
+  justify-content: space-between;
+  margin-block-end: 0.5rem;
+}
+
+.strong {
+  font-weight: 700;
+}
+
+.error-text {
+  color: var(--theme-color-alarm-text, var(--theme-color-alarm));
+}

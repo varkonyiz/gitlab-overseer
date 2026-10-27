@@ -1,0 +1,14 @@
+@use '../../shared/page';
+
+.heading {
+  justify-content: space-between;
+  margin-block-end: 0.5rem;
+}
+
+.strong {
+  font-weight: 700;
+}
+
+.ranking-chart {
+  --chart-height: 24rem;
+}

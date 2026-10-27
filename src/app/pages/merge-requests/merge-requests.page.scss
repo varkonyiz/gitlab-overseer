@@ -1,0 +1,24 @@
+@use '../../shared/page';
+
+.heading {
+  justify-content: space-between;
+  margin-block-end: 0.5rem;
+}
+
+.title {
+  min-width: 18rem;
+  max-width: 28rem;
+}
+
+td {
+  white-space: nowrap;
+}
+
+td.title {
+  white-space: normal;
+}
+
+.big {
+  margin-inline-start: 0.25rem;
+  font-weight: 700;
+}

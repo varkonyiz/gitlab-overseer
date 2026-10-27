@@ -1,3 +1,4 @@
+import { DEFAULT_ANALYTICS_SETTINGS } from '../analytics/analytics-settings';
 import { ConfigError, normalizeGitLabUrl, parseAppConfig } from './app-config';
 
 describe('parseAppConfig', () => {
@@ -10,6 +11,37 @@ describe('parseAppConfig', () => {
       allowPersonalAccessToken: true,
       defaultLanguage: 'en',
       defaultSources: [],
+      analytics: DEFAULT_ANALYTICS_SETTINGS,
+      features: { reviewerAssignment: false },
+    });
+  });
+
+  it('parseAppConfig_ApiScopeWithReviewerAssignment_Allowed', () => {
+    const config = parseAppConfig({
+      gitlabUrl: 'https://gitlab.com',
+      oauth: { scopes: ['api'] },
+      features: { reviewerAssignment: true },
+    });
+
+    expect(config.oauth.scopes).toEqual(['api']);
+    expect(config.features.reviewerAssignment).toBe(true);
+  });
+
+  it('parseAppConfig_AnalyticsSection_Parsed', () => {
+    const config = parseAppConfig({
+      gitlabUrl: 'https://gitlab.com',
+      analytics: {
+        branchPattern: '^(?<team>[a-z]+)/(?<sprint>\\d+)/',
+        bigMergeRequestFiles: 30,
+        sprints: [{ sprint: '400', start: '2026-10-01', end: '2026-10-14' }],
+      },
+    });
+
+    expect(config.analytics).toEqual({
+      branchPattern: '^(?<team>[a-z]+)/(?<sprint>\\d+)/',
+      bigMergeRequestFiles: 30,
+      bigMergeRequestWeight: 2,
+      sprints: [{ sprint: '400', start: '2026-10-01', end: '2026-10-14' }],
     });
   });
 
@@ -42,6 +74,20 @@ describe('parseAppConfig', () => {
     [{ gitlabUrl: 'http://gitlab.example.com' }, /https/],
     [{ gitlabUrl: 'https://u:p@gitlab.example.com' }, /credentials/],
     [{ gitlabUrl: 'https://gitlab.com', oauth: { scopes: ['api'] } }, /read scopes/],
+    [
+      {
+        gitlabUrl: 'https://gitlab.com',
+        oauth: { scopes: ['write_repository'] },
+        features: { reviewerAssignment: true },
+      },
+      /read scopes/,
+    ],
+    [
+      { gitlabUrl: 'https://gitlab.com', features: { reviewerAssignment: 'yes' } },
+      /reviewerAssignment/,
+    ],
+    [{ gitlabUrl: 'https://gitlab.com', analytics: { branchPattern: '(' } }, /analytics/],
+    [{ gitlabUrl: 'https://gitlab.com', analytics: { branchPattern: '^\\d+_' } }, /patternGroups/],
     [{ gitlabUrl: 'https://gitlab.com', oauth: { scopes: [] } }, /empty/],
     [{ gitlabUrl: 'https://gitlab.com', oauth: { clientId: 'a b' } }, /clientId/],
     [{ gitlabUrl: 'https://gitlab.com', oauth: { redirectUri: 'https://x/#cb' } }, /redirectUri/],

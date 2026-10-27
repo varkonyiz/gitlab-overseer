@@ -23,6 +23,18 @@ describe('csv', () => {
     expect(csv).toBe('name;count\r\n"x;y";\r\n');
   });
 
+  it('toCsv_Semicolon_DecimalComma', () => {
+    const csv = toCsv<Row>([{ name: 'a', count: 12.5 }], columns, { delimiter: ';', bom: false });
+
+    expect(csv).toBe('name;count\r\na;12,5\r\n');
+  });
+
+  it('toCsv_CommaDelimiter_DecimalPoint', () => {
+    const csv = toCsv<Row>([{ name: 'a', count: -1.25 }], columns, { bom: false });
+
+    expect(csv).toBe('name,count\r\na,-1.25\r\n');
+  });
+
   it('escapeCell_QuotesAndNewlines_Quoted', () => {
     expect(escapeCell('say "hi"', ',')).toBe('"say ""hi"""');
     expect(escapeCell('a\nb', ',')).toBe('"a\nb"');

@@ -20,6 +20,8 @@ export interface AuthSession {
   readonly refreshToken: string | null;
   /** Epoch milliseconds, null = no known expiry (personal access tokens). */
   readonly expiresAt: number | null;
+  /** Scopes GitLab granted, when it said so (OAuth token response, `/personal_access_tokens/self`). */
+  readonly scopes?: readonly string[] | null;
 }
 
 interface PendingLogin {
@@ -158,6 +160,7 @@ export class AuthService {
         accessToken: trimmed,
         refreshToken: null,
         expiresAt: null,
+        scopes: await this.tokenScopes(gitlabUrl, trimmed),
       });
       this.user.set(user);
       this.error.set(null);
@@ -166,6 +169,12 @@ export class AuthService {
       this.error.set({ code: httpStatus(error) === 0 ? 'network' : 'invalidToken' });
       return false;
     }
+  }
+
+  /** True when the session can write (reviewer assignment); null = GitLab did not say. */
+  hasScope(scope: string): boolean | null {
+    const scopes = this.sessionState()?.scopes;
+    return scopes ? scopes.includes(scope) : null;
   }
 
   async logout(): Promise<void> {
@@ -303,6 +312,22 @@ export class AuthService {
     );
   }
 
+  /** Best effort: older GitLab versions have no `/personal_access_tokens/self`. */
+  private async tokenScopes(gitlabUrl: string, token: string): Promise<string[] | null> {
+    try {
+      const self = await firstValueFrom(
+        this.http.get<{ scopes?: unknown }>(`${gitlabUrl}/api/v4/personal_access_tokens/self`, {
+          headers: { Authorization: `Bearer ${token}` },
+        }),
+      );
+      return Array.isArray(self.scopes) && self.scopes.every((x) => typeof x === 'string')
+        ? self.scopes
+        : null;
+    } catch {
+      return null;
+    }
+  }
+
   private async loadUser(): Promise<void> {
     try {
       this.user.set(await firstValueFrom(this.http.get<GitLabUser>(this.apiUser())));
@@ -359,6 +384,7 @@ function toSession(response: GitLabTokenResponse, gitlabUrl: string): AuthSessio
     accessToken: response.access_token,
     refreshToken: response.refresh_token ?? null,
     expiresAt: expiresIn !== null ? Date.now() + expiresIn * 1000 : null,
+    scopes: typeof response.scope === 'string' ? response.scope.split(/\s+/).filter(Boolean) : null,
   };
 }
 
@@ -373,7 +399,10 @@ function parseSession(value: unknown): AuthSession | null {
     typeof s.accessToken === 'string' &&
     s.accessToken !== '' &&
     (s.refreshToken === null || typeof s.refreshToken === 'string') &&
-    (s.expiresAt === null || typeof s.expiresAt === 'number');
+    (s.expiresAt === null || typeof s.expiresAt === 'number') &&
+    (s.scopes === undefined ||
+      s.scopes === null ||
+      (Array.isArray(s.scopes) && s.scopes.every((x) => typeof x === 'string')));
   return ok ? (s as AuthSession) : null;
 }
 

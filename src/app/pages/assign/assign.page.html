@@ -1,0 +1,189 @@
+<ix-content-header
+  [headerTitle]="'assign.title' | translate"
+  [headerSubtitle]="'assign.subtitle' | translate"
+></ix-content-header>
+
+@if (!enabled) {
+  <ix-message-bar class="block" type="info" [persistent]="true" data-testid="assign-disabled">
+    {{ 'assign.disabled' | translate }}
+  </ix-message-bar>
+} @else if (canWrite() === false) {
+  <ix-message-bar class="block" type="warning" [persistent]="true" data-testid="assign-no-scope">
+    {{ 'assign.noScope' | translate }}
+  </ix-message-bar>
+}
+
+@if (!data.dataset()) {
+  <ix-empty-state
+    data-testid="no-data"
+    icon="user-check"
+    [header]="'common.noDataTitle' | translate"
+    [subHeader]="'common.noDataText' | translate"
+  ></ix-empty-state>
+  <ix-button routerLink="/dashboard">{{ 'common.goCollect' | translate }}</ix-button>
+} @else {
+  <ix-card class="block">
+    <ix-card-content>
+      <ix-typography format="h4">{{ 'assign.step1' | translate }}</ix-typography>
+      <div class="row">
+        <ix-select
+          data-testid="assign-team"
+          [label]="'filter.team' | translate"
+          [value]="team() ?? ''"
+          (valueChange)="selectTeam($event.detail)"
+        >
+          @for (t of teams(); track t) {
+            <ix-select-item [value]="t" [label]="t"></ix-select-item>
+          }
+        </ix-select>
+        <ix-select
+          data-testid="assign-sprint"
+          [label]="'filter.sprint' | translate"
+          [value]="sprint() ?? ''"
+          (valueChange)="selectSprint($event.detail)"
+        >
+          @for (s of sprints(); track s) {
+            <ix-select-item [value]="s" [label]="s"></ix-select-item>
+          }
+        </ix-select>
+        <ix-checkbox
+          data-testid="assign-drafts"
+          [label]="'assign.includeDrafts' | translate"
+          [checked]="includeDrafts()"
+          (checkedChange)="setIncludeDrafts($event.detail)"
+        ></ix-checkbox>
+      </div>
+    </ix-card-content>
+  </ix-card>
+
+  <ix-card class="block">
+    <ix-card-content>
+      <ix-typography format="h4">{{ 'assign.step2' | translate }}</ix-typography>
+      @if (membersFailed()) {
+        <p class="muted">{{ 'assign.membersFailed' | translate }}</p>
+      }
+      <div class="row">
+        <ix-select
+          class="pool"
+          data-testid="assign-pool"
+          mode="multiple"
+          [label]="'assign.pool' | translate"
+          [value]="poolValue()"
+          (valueChange)="selectPool($event.detail)"
+        >
+          @for (u of users(); track u.id) {
+            <ix-select-item
+              [value]="'' + u.id"
+              [label]="u.name + ' (@' + u.username + ')'"
+            ></ix-select-item>
+          }
+        </ix-select>
+        <ix-button
+          data-testid="assign-reload-members"
+          variant="tertiary"
+          icon="refresh"
+          [loading]="loadingMembers()"
+          (click)="loadMembers()"
+          >{{ 'assign.reloadMembers' | translate }}</ix-button
+        >
+      </div>
+      @if (poolRanking().length > 0) {
+        <table class="table pool-table" data-testid="pool-ranking">
+          <thead>
+            <tr>
+              <th>{{ 'reviewers.reviewer' | translate }}</th>
+              <th class="num">{{ 'reviewers.score' | translate }}</th>
+              <th class="num">{{ 'reviewers.openAssigned' | translate }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (p of poolRanking(); track p.user.id) {
+              <tr>
+                <td>{{ p.user.name }}</td>
+                <td class="num">{{ p.score }}</td>
+                <td class="num">{{ p.openAssigned }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      }
+    </ix-card-content>
+  </ix-card>
+
+  <ix-card class="block">
+    <ix-card-content>
+      <div class="row heading">
+        <ix-typography format="h4">{{ 'assign.step3' | translate }}</ix-typography>
+        <ix-button
+          data-testid="assign-apply"
+          icon="user-check"
+          [disabled]="!enabled || plan().length === 0 || canWrite() === false"
+          [loading]="applying()"
+          (click)="apply()"
+          >{{ 'assign.apply' | translate: { count: plan().length } }}</ix-button
+        >
+      </div>
+      @if (applied() === null && (!team() || !sprint())) {
+        <p class="muted" data-testid="assign-choose">{{ 'assign.choose' | translate }}</p>
+      } @else if (applied() === null && unassigned().length === 0) {
+        <p class="muted" data-testid="assign-none">{{ 'assign.none' | translate }}</p>
+      } @else if (applied() === null && pool().length === 0) {
+        <p class="muted" data-testid="assign-no-pool">
+          {{ 'assign.noPool' | translate: { count: unassigned().length } }}
+        </p>
+      } @else {
+        <div class="table-wrap">
+          <table class="table" data-testid="assign-plan">
+            <thead>
+              <tr>
+                <th>{{ 'mergeRequests.mergeRequest' | translate }}</th>
+                <th>{{ 'assign.author' | translate }}</th>
+                <th class="num">{{ 'mergeRequests.files' | translate }}</th>
+                <th>{{ 'assign.reviewer' | translate }}</th>
+                <th class="num">{{ 'assign.scoreAtPick' | translate }}</th>
+                <th>{{ 'assign.result' | translate }}</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (p of shown(); track key(p)) {
+                <tr [attr.data-testid]="'plan-' + key(p)">
+                  <td>
+                    <a [href]="p.row.mr.webUrl" target="_blank" rel="noopener noreferrer"
+                      >{{ p.row.mr.projectPath }}!{{ p.row.mr.iid }}</a
+                    >
+                    <div>{{ p.row.mr.title }}</div>
+                  </td>
+                  <td>{{ p.row.mr.author.name }}</td>
+                  <td class="num">
+                    {{ p.row.mr.changesCount ?? '–' }}{{ p.row.big ? ' ×' + p.row.weight : '' }}
+                  </td>
+                  <td class="strong">{{ p.reviewer.name }}</td>
+                  <td class="num">{{ p.scoreAtPick }}</td>
+                  <td data-testid="plan-result">
+                    @switch (outcomes().get(key(p))?.status) {
+                      @case ('assigned') {
+                        {{ 'assign.outcomes.assigned' | translate }}
+                      }
+                      @case ('skipped') {
+                        {{ 'assign.outcomes.skipped' | translate }}
+                      }
+                      @case ('failed') {
+                        <span class="error-text">{{
+                          'assign.outcomes.failed'
+                            | translate: { status: $any(outcomes().get(key(p))).httpStatus ?? '?' }
+                        }}</span>
+                      }
+                      @default {
+                        <span class="muted">–</span>
+                      }
+                    }
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+    </ix-card-content>
+  </ix-card>
+}
